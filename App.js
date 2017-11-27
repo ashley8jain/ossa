@@ -51,18 +51,18 @@ export default class App extends React.Component {
         submit: true,
         username: response.data[0].username,
       });
-      // fetch('https://api.instagram.com/v1/users/'+response.data[0].id+'/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b')
-      // .then((response) => response.json())
-      // .then((responseData) => {
-      //   this.setState({
-      //     dataSource: this.state.dataSource.cloneWithRows(responseData.data),
-      //     loaded: true,
-      //     text: this.state.text,
-      //     submit: true,
-      //     username: responseData.data[0].user.username,
-      //   });
-      // })
-      // .done();
+      fetch('https://api.instagram.com/v1/users/'+response.data[0].id+'/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b')
+      .then((response) => response.json())
+      .then((responseData) => {
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRows(responseData.data),
+          loaded: true,
+          text: this.state.text,
+          submit: true,
+          username: responseData.data[0].user.username,
+        });
+      })
+      .done();
     })
   }
 
@@ -75,13 +75,13 @@ export default class App extends React.Component {
       return this.renderLoadingView();
     }
 
-    return this.rendernet();
-      // <ListView
-      //   dataSource={this.state.dataSource}
-      //   renderRow={this.renderData}
-      //   style={styles.listView}
-      // />
-
+    return (
+      <ListView
+        dataSource={this.state.dataSource}
+        renderRow={this.renderData}
+        style={styles.listView}
+      />
+    );
   }
 
   renderTextInput() {
@@ -118,7 +118,7 @@ export default class App extends React.Component {
 
   renderData(data) {
     return (
-      <View style={styles.container}>
+      <View style={styles.piccontainer}>
         <Image
           source={{uri: data.images.thumbnail.url}}
           style={styles.thumbnail}
@@ -128,25 +128,47 @@ export default class App extends React.Component {
           <Text style={styles.year}>{data.comments.count}</Text>
         </View>
       </View>
-      // <WebView
-      //   source={{uri: 'https://www.instagram.com/'+this.state.username+'/'}}
-      //   style={{marginTop: 20}}
-      // />
     );
   }
 
-  rendernet() {
-    return (
-      <WebView
-        source={{uri: 'https://www.instagram.com/'+this.state.username+'/' }}
-        style={{marginTop: 20}}
-      />
-    );
-  }
+  // rendernet() {
+  //   return (
+  //     <WebView
+  //       source={{uri: 'https://www.instagram.com/'+this.state.username+'/' }}
+  //       style={{marginTop: 20}}
+  //     />
+  //   );
+  // }
 
 }
 
 var styles = StyleSheet.create({
+  piccontainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  rightContainer: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  year: {
+    textAlign: 'center',
+  },
+  thumbnail: {
+    width: 53,
+    height: 81,
+  },
+  listView: {
+    paddingTop: 20,
+    backgroundColor: '#F5FCFF',
+  },
   container: {
     flex: 1,
     flexDirection: 'column',
