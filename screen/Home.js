@@ -239,7 +239,6 @@ function BottomBar(props){
 class OpenImage extends Component{
 
   static navigationOptions = {
-    header: null,
     tabBarLabel: "First",
     tabBarIcon: () => <Icon size={24} name="image" color="white" />
   }
