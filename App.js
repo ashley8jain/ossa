@@ -3,7 +3,7 @@ import { Text, View } from 'react-native'
 import { TabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-import FirstScreen from './screen/FirstScreen'
+import Home from './screen/Home'
 import SecondScreen from './screen/SecondScreen'
 import ThirdScreen from './screen/ThirdScreen'
 import FourthScreen from './screen/FourthScreen'
@@ -14,7 +14,7 @@ import FifthScreen from './screen/FifthScreen'
 
 const MyApp = TabNavigator(
   {
-      Tab1: {screen: FirstScreen},
+      Home: {screen: Home},
       Tab2: {screen: SecondScreen},
       Tab3: {screen: ThirdScreen},
       Tab4: {screen: FourthScreen},
