@@ -189,7 +189,7 @@ class App extends React.Component {
     // console.log("RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE ");
     console.log(data);
     return (
-      <TouchableNativeFeedback background={TouchableNativeFeedback.SelectableBackground()} onPress={(e)=>this.pressView(e,data)}
+        <TouchableWithoutFeedback onPress={(e)=>this.pressView(e,data)}
                        // onPress={(e)=>this.handleTaps(e)}
                      >
       <View style={styles.piccontainer}>
@@ -202,7 +202,7 @@ class App extends React.Component {
           <Text style={styles.year}>{data.comments.count}</Text>
         </View>*/}
       </View>
-      </TouchableNativeFeedback>
+      </TouchableWithoutFeedback>
     );
   }
 
