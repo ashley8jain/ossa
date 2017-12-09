@@ -12,7 +12,7 @@ var REQUEST_URL = 'https://api.instagram.com/v1/users/1686110577/media/recent/?a
 var ImagePicker = NativeModules.ImageCropPicker;
 
 
-class App extends React.Component {
+class App extends Component {
 
   static navigationOptions = {
     header: null,
@@ -117,6 +117,7 @@ class App extends React.Component {
           <TextInput style = {styles.input}
             onChangeText={(text) => this.setState({text})}
             value={this.state.text}
+            underlineColorAndroid="transparent"
           />
           <Button
              style = {styles.submitButton}
