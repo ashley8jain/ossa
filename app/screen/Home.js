@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Text, Image, View, StyleSheet, ScrollView, Button, ToastAndroid
+import { Platform, Text, Image, View, StyleSheet, ScrollView, Button, ToastAndroid
          ,TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback,
-        ListView, TextInput, NativeModules, Dimensions, Alert } from 'react-native';
+        ListView, TextInput, NativeModules, Dimensions, Alert, Switch } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { TabNavigator } from 'react-navigation';
 import Clarifai from 'clarifai';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
@@ -11,6 +12,7 @@ var ACCESS_TOKEN = '8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
 var REQUEST_URL = 'https://api.instagram.com/v1/users/1686110577/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
 var ImagePicker = NativeModules.ImageCropPicker;
 
+var sWidth = Dimensions.get("screen").width/3.0-10;
 
 class App extends Component {
 
@@ -45,7 +47,7 @@ class App extends Component {
   }
 
   fetchData() {
-    // Alert.alert(this.props.token+"");
+    // Alert.alert(this.props.screenProps);
     fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps)
     .then(response => response.json())
     .then((response) => {
@@ -85,26 +87,14 @@ class App extends Component {
 
     return (
       <View style={{flex: 1, flexDirection: 'column'}}>
-
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this.renderData.bind(this)}
-        contentContainerStyle={styles.list}
-      />
-      <BottomBar tapped = {this.state.isTapped}/>
-      <View style={{position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-
-            width:'100%'}}>
-            <Button
-              onPress={() => this.pickSingle(true)}
-
-              title="Upload Image"
-              color="#841584"
-              accessibilityLabel="Learn more about this purple button"
-            />
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderData.bind(this)}
+          contentContainerStyle={styles.list}
+        />
+        <BottomBar tapped = {this.state.isTapped}/>
+        <View style={{position: 'absolute',left: 0,right: 0,bottom: 0,width:'100%'}}>
+          <Button onPress={() => this.pickSingle(true)} title="Upload Image" color="#841584" accessibilityLabel="Learn more about this purple button"/>
         </View>
       </View>
     );
@@ -194,7 +184,7 @@ class App extends Component {
     // console.log("RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE ");
     console.log(data);
     return (
-        <TouchableWithoutFeedback onPress={(e)=>this.pressView(e,data)}
+      <TouchableWithoutFeedback onPress={(e)=>this.pressView(e,data)}
                        // onPress={(e)=>this.handleTaps(e)}
                      >
       <View style={styles.piccontainer}>
@@ -240,10 +230,14 @@ function BottomBar(props){
 
 
 
-
 class OpenImage extends Component{
 
   static navigationOptions = {
+    ...Platform.select({
+      android: {
+        header: null,
+      },
+    }),
     tabBarLabel: "First",
     tabBarIcon: () => <Icon size={24} name="image" color="white" />
   }
@@ -251,7 +245,9 @@ class OpenImage extends Component{
     constructor() {
       super();
       this.state = {
-        tags: []
+        tags: [],
+        text: "#travel #joyoflife #intelmark #fun",
+        height: 0
       };
 
     }
@@ -282,13 +278,13 @@ class OpenImage extends Component{
 
     }
 
-    render(){
-        return(
+    render1(){
+      return(
         //    <View style={styles.textContainer}>
         //        <Text style={{fontSize:30}}>Name: {this.props.navigation.state.params.item.name} </Text>
         //        <Text style={{fontSize:30}}>id: {this.props.navigation.state.params.item.id} </Text>
         //    </View>
-            <View style = {{flexDirection:'column', flex:1, justifyContent: 'center',
+        <View style = {{flexDirection:'column', flex:1, justifyContent: 'center',
               alignItems: 'center', backgroundColor: 'white'}}>
               <View style={{width: '100%',flex:1, backgroundColor: 'black', justifyContent: 'flex-end', alignItems:'center'}}>
                   <Image
@@ -296,7 +292,7 @@ class OpenImage extends Component{
                       /*style={{width:this.props.navigation.state.params.data.images.standard_resolution.width,
                               height:this.props.navigation.state.params.data.images.standard_resolution.height,
                               }}*/
-                        style={styles.thumbnail2}
+                      style={styles.thumbnail2}
                   />
               </View>
 
@@ -312,10 +308,136 @@ class OpenImage extends Component{
                 }
                 </ScrollView>
               </View>
-            </View>
-        )}
+            </View>)
+      }
+
+      render(){
+        return(
+        <View style = {{flex:1, backgroundColor: '#F9F9F9'}} >
+          <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center', alignItems: 'center'}} >
+            <Text style = {{padding: 10, fontSize: 19, fontWeight: 'bold'}} >
+              CAPTION
+            </Text>
+          </View>
+          <View style = {styles.textCaption}>
+            <Image
+                  source={{uri: this.props.navigation.state.params.data.images.thumbnail.url}}
+                /*style={{width:this.props.navigation.state.params.data.images.standard_resolution.width,
+                        height:this.props.navigation.state.params.data.images.standard_resolution.height,
+                        }}*/
+                  style={styles.thumbnailCaption}
+            />
+             <TextInput
+                  {...this.props}
+                  multiline={true}
+                  onChangeText={(text) => {
+                      this.setState({ text })
+                  }}
+                  numberOfLines = {4}
+                  style = {{width: '68%', fontSize: 20, padding: 5, textAlignVertical: "top",
+                  height: 125, marginLeft: 8}}
+                  value = {this.state.text}
+                  editable = {true}
+                  maxLength = {100}
+                  placeholder = {"Your caption"}
+                  underlineColorAndroid = {'transparent'}
+              />
+          </View>
+          <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center'}} >
+            <Text style = {{padding: 10, fontSize: 17}} >
+              HASHTAGS
+            </Text>
+          </View>
+          <View style = {{height: '22%', backgroundColor: 'white', }} >
+            <HashTags/>
+          </View>
+          <View style = {{height: '5%', backgroundColor: '#F9F9F9', }} />
+
+          <View style = {{height: '8%', backgroundColor: 'white',
+            alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row'}} >
+              <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
+              <Switch style = {{marginRight: 10}} value = {true} />
+          </View>
+        </View>)
+      }
+
+
 
 }
+
+class Groups extends React.Component {
+  static navigationOptions = {
+    tabBarLabel: 'Group',
+  };
+  render() {
+    return (
+      <View style = {{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Text>
+          Group
+        </Text>
+      </View>
+    );
+  }
+}
+
+class Recent extends React.Component {
+  static navigationOptions = {
+    tabBarLabel: 'Recent',
+  };
+  render() {
+    return (
+      <View style = {{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Text style = {{fontSize: 18}} >
+          Fetch recent Hashtags
+        </Text>
+      </View>
+    );
+  }
+}
+
+class MostUsed extends React.Component {
+  static navigationOptions = {
+    tabBarLabel: 'Most Used',
+  };
+  render() {
+    return (
+      <View style = {{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Text>
+          Most Used
+        </Text>
+      </View>
+    );
+  }
+}
+
+const HashTags = TabNavigator({
+  Home: {
+    screen: Groups,
+  },
+  Notifications: {
+    screen: Recent,
+  },
+  MostUsed: {
+    screen: MostUsed,
+  }
+}, {
+  tabBarPosition: 'top',
+  animationEnabled: true,
+  tabBarOptions: {
+    activeTintColor: 'black',
+    inactiveTintColor: 'grey',
+    labelStyle: {
+      fontSize: 17,
+    },
+    style : {
+      backgroundColor: 'white'
+    },
+    indicatorStyle: {
+      backgroundColor: 'grey',
+    },
+
+  },
+});
 
 const ModalStack = StackNavigator({
   Login: {
@@ -328,6 +450,16 @@ const ModalStack = StackNavigator({
 });
 
 const styles = StyleSheet.create ({
+  icon: {
+    width: 26,
+    height: 26,
+  },
+   textCaption: {
+      flexDirection: 'row',
+      padding: 15,
+      height:'27%',
+      backgroundColor: 'white'
+   },
   item: {
     width:'32%',
     height: 100,
@@ -364,6 +496,13 @@ const styles = StyleSheet.create ({
     margin: 1,
     width:'32.5%'
   },
+  piccontainers: {
+    backgroundColor: 'white',
+    width: sWidth,
+    height:sWidth,
+    padding: 5,
+    margin: 1,
+  },
   piccontainer2: {
     width: '100%',flex:1, backgroundColor: 'black'
   },
@@ -383,6 +522,10 @@ const styles = StyleSheet.create ({
   thumbnail: {
     width: 150,
     height: 150,
+  },
+  thumbnailCaption: {
+    width: 125,
+    height: 125,
   },
   thumbnail2: {
     width:400,

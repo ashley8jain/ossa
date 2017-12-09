@@ -28,6 +28,7 @@ class MyApp extends Component{
   render(){
     if(this.state.token!=null){
       return (
+        // Alert.alert(this.state.token),
         <TabNav token={this.state.token}/>
       )
     }

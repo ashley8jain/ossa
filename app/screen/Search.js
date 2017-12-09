@@ -102,6 +102,7 @@ export default class App extends React.Component {
           <TextInput style = {styles.input}
             onChangeText={(text) => this.setState({text})}
             value={this.state.text}
+            underlineColorAndroid="transparent"
           />
           <Button
              style = {styles.submitButton}

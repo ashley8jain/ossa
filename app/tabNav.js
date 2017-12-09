@@ -4,7 +4,7 @@ import { TabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
 import Home from './screen/Home'
-import SecondScreen from './screen/SecondScreen'
+import Search from './screen/Search'
 import ThirdScreen from './screen/ThirdScreen'
 import FourthScreen from './screen/FourthScreen'
 import FifthScreen from './screen/FifthScreen'
@@ -15,7 +15,7 @@ const TabNavv = (props) => {
   const TabNav = TabNavigator(
   {
       Home: {screen: Home},
-      Tab2: {screen: SecondScreen},
+      Search: {screen: Search},
       Tab3: {screen: ThirdScreen},
       Tab4: {screen: FourthScreen},
       Tab5: {screen: FifthScreen}
