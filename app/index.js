@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert } from 'react-native'
 import InstagramLogin from 'react-native-instagram-login';
 
 import TabNav from './tabNav'
@@ -14,14 +14,21 @@ class MyApp extends Component{
     };
   }
 
+  componentDidMount() {
+    AsyncStorage.getItem('token').then((value) => {
+      this.setState({token: value});
+    }).done();
+  }
+
   loginSucced(token){
     this.setState({ token });
+    AsyncStorage.setItem("token", token);
   }
 
   render(){
     if(this.state.token!=null){
       return (
-        <TabNav/>
+        <TabNav token={this.state.token}/>
       )
     }
     else{

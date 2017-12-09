@@ -22,6 +22,7 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+    // Alert.alert(this.props.screenProps);
     this.state = {
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
@@ -38,21 +39,23 @@ class App extends Component {
     this.pickSingle = this.pickSingle.bind(this);
   }
 
-  // componentDidMount() {
-  //   this.fetchData();
-  // }
+  componentDidMount() {
+    // Alert.alert(this.props.screenProps);
+    this.fetchData();
+  }
 
   fetchData() {
-    fetch('https://api.instagram.com/v1/users/search?q='+this.state.text+'&access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b')
+    // Alert.alert(this.props.token+"");
+    fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps)
     .then(response => response.json())
     .then((response) => {
       this.setState({
         loaded: false,
         text: this.state.text,
         submit: true,
-        username: response.data[0].username,
+        // username: response.data.username,
       });
-      fetch('https://api.instagram.com/v1/users/'+response.data[0].id+'/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b')
+      fetch('https://api.instagram.com/v1/users/'+response.data.id+'/media/recent/?access_token='+this.props.screenProps)
       .then((response) => response.json())
       .then((responseData) => {
         //console.log(responseData.data);
@@ -71,11 +74,12 @@ class App extends Component {
   }
 
   render() {
-    if (!this.state.submit) {
-      return this.renderTextInput();
-    }
-
-    else if (!this.state.loaded) {
+    // if (!this.state.submit) {
+    //   return this.renderTextInput();
+    // }
+    //
+    // else
+    if (!this.state.loaded) {
       return this.renderLoadingView();
     }
 

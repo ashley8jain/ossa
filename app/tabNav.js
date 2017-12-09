@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View } from 'react-native'
+import { Text, View, Alert } from 'react-native'
 import { TabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
@@ -11,7 +11,8 @@ import FifthScreen from './screen/FifthScreen'
 
 // ref: https://reactnavigation.org/docs/navigators/tab
 
-const TabNav = TabNavigator(
+const TabNavv = (props) => {
+  const TabNav = TabNavigator(
   {
       Home: {screen: Home},
       Tab2: {screen: SecondScreen},
@@ -41,7 +42,17 @@ const TabNav = TabNavigator(
         backgroundColor: '#751b0b'
       }
     }
-  }
-)
+  });
 
-export default TabNav;
+  return (
+    // Alert.alert(props.token),
+    <TabNav
+      screenProps={props.token}
+    />
+  );
+}
+
+
+
+
+export default TabNavv;
