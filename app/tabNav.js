@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Text, View, Alert } from 'react-native'
 import { TabNavigator } from 'react-navigation'
-import Icon from 'react-native-vector-icons/MaterialIcons'
 
 import Home from './screen/Home'
 import Search from './screen/Search'
