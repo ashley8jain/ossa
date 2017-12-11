@@ -15,6 +15,7 @@ Clone the repository, then
   $ watchman watch-del-all
   $ rm -rf node_modules && npm install
   $ npm start -- --reset-cache
+  (open other new terminal)
   $ react-native run-android/run-ios
 ```
 

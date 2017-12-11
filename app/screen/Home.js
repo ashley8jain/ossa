@@ -6,11 +6,11 @@ import { StackNavigator } from 'react-navigation';
 import { TabNavigator } from 'react-navigation';
 import Clarifai from 'clarifai';
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import ImagePicker from 'react-native-image-crop-picker';
 
 
 var ACCESS_TOKEN = '8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
 var REQUEST_URL = 'https://api.instagram.com/v1/users/1686110577/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
-var ImagePicker = NativeModules.ImageCropPicker;
 
 var sWidth = Dimensions.get("screen").width/3.0-10;
 
