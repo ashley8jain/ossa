@@ -1344,7 +1344,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/Users/ashleyjain/Documents/FacebookSDK,
+					FacebookSDK,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1373,7 +1373,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					/Users/ashleyjain/Documents/FacebookSDK,
+					FacebookSDK,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
