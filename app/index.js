@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Button } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Button, Keyboard } from 'react-native'
 import InstagramLogin from 'react-native-instagram-login';
 import * as firebase from "firebase";
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
@@ -29,6 +29,7 @@ class MyApp extends Component{
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.setUserMobile = this.setUserMobile.bind(this);
+    this.listenUserMobile = this.listenUserMobile.bind(this);
   }
 
   componentDidMount() {
@@ -75,7 +76,7 @@ class MyApp extends Component{
   }
 
   async login() {
-    // DismissKeyboard();
+    Keyboard.dismiss();
     try
     {
       await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
@@ -93,15 +94,38 @@ class MyApp extends Component{
     }
   }
 
-  setUserMobile(userId, mobile){
+  // async logout() {
+  //   try {
+  //       await firebase.auth().signOut();
+  //       // Navigate to login view
+  //
+  //   } catch (error) {
+  //       console.log(error);
+  //   }
+  // }
+
+  setUserMobile(){
+    Keyboard.dismiss();
     if(this.state.uid!=null){
       let userMobilePath = "/user/" + this.state.uid + "/details";
+      //ref: https://firebase.google.com/docs/database/web/read-and-write?authuser=0
       firebase.database().ref(userMobilePath).set({mobile: this.state.mobile})
       alert("Done!");
     }
     else{
       alert("login first");
     }
+  }
+
+  listenUserMobile() {
+    let userMobilePath = "/user/" + this.state.uid + "/details";
+    firebase.database().ref(userMobilePath).on('value', (snapshot) => {
+      var mobile = "";
+      if (snapshot.val()) {
+        mobile = snapshot.val().mobile
+      }
+      this.setState({mobile:mobile});
+    });
   }
 
 
@@ -158,12 +182,38 @@ class MyApp extends Component{
                   AccessToken.getCurrentAccessToken().then(
                     (data) => {
                       let accessToken = data.accessToken;
+
+                      // Build Firebase credential with the Facebook access token.
+                      var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
+                      // alert(credential.toString());
+                      // Sign in with credential from the Google user.
+                      firebase.auth().signInWithCredential(credential).catch(function(error) {
+                        // Handle Errors here.
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                        alert(errorMessage);
+                        // The email of the user's account used.
+                        var email = error.email;
+                        // The firebase.auth.AuthCredential type that was used.
+                        var credential = error.credential;
+                        // ...
+                      });
+
+                      let user = firebase.auth().currentUser;
+                      this.setState(
+                        {uid:user.uid}
+                      );
+                      console.log(user.uid);
+                      AsyncStorage.setItem("uid", user.uid);
+
+                      //FB Graph API
                       fetch('https://graph.facebook.com/v2.5/me?fields=email,gender,id,name&access_token=' + accessToken)
                       .then((response) => response.json())
                       .then((json) => {
                         // Some user object has been set up somewhere, build that user here
-                        alert(json.email);
                         this.setState({email:json.email});
+                        // alert(json.email);
+                        AsyncStorage.setItem("email", json.email);
                       })
                       .catch(() => {
                         reject('ERROR GETTING DATA FROM FACEBOOK')
@@ -182,6 +232,8 @@ class MyApp extends Component{
             placeholder="mobile"
           />
           <Button onPress={this.setUserMobile} textStyle={{fontSize: 18}} title = "Save" >
+          </Button>
+          <Button onPress={this.listenUserMobile} textStyle={{fontSize: 18}} title = "Load" >
           </Button>
         </View>
       )
