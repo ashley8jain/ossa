@@ -170,7 +170,7 @@ class MyApp extends Component{
               redirectUrl='http://localhost:8515/oauth_callback'
           />
           <LoginButton
-            readPermissions={["public_profile","email","user_friends"]}
+            readPermissions={["public_profile","email","pages_show_list","instagram_basic","instagram_manage_insights"]}
             onLoginFinished={
               (error, result) => {
                 if (error) {
@@ -178,11 +178,13 @@ class MyApp extends Component{
                 } else if (result.isCancelled) {
                   alert("login is cancelled.");
                 } else {
+                  console.log("Result: "+JSON.stringify(result));
                   // permission object - https://developers.facebook.com/docs/facebook-login/permissions#reference-public_profile
                   AccessToken.getCurrentAccessToken().then(
                     (data) => {
+                      console.log("Data: "+JSON.stringify(data));
                       let accessToken = data.accessToken;
-
+                      console.log("fb token: "+accessToken);
                       // Build Firebase credential with the Facebook access token.
                       var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
                       // alert(credential.toString());
@@ -203,21 +205,134 @@ class MyApp extends Component{
                       this.setState(
                         {uid:user.uid}
                       );
-                      console.log(user.uid);
+                      console.log("firebase user id: "+user.uid);
                       AsyncStorage.setItem("uid", user.uid);
 
-                      //FB Graph API
-                      fetch('https://graph.facebook.com/v2.5/me?fields=email,gender,id,name&access_token=' + accessToken)
-                      .then((response) => response.json())
-                      .then((json) => {
-                        // Some user object has been set up somewhere, build that user here
-                        this.setState({email:json.email});
-                        // alert(json.email);
-                        AsyncStorage.setItem("email", json.email);
-                      })
-                      .catch(() => {
-                        reject('ERROR GETTING DATA FROM FACEBOOK')
-                      })
+                      // console.log("here1");
+                      //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
+                      const responseFunc = (error, result) => {
+                        if (error) {
+                          console.log(error)
+                          alert('Error fetching data: ' + error.toString());
+                        } else {
+                          console.log(result)
+                          this.setState({email:result.email});
+                          // alert(json.email);
+                          AsyncStorage.setItem("email", result.email);
+                          // console.log("here2");
+
+                          // alert('Success fetching data: ' + JSON.stringify(result));
+                        }
+                      }
+                      const infoRequest = new GraphRequest(
+                        '/me',
+                        {
+                          parameters: {
+                            fields: {
+                              string: 'email,gender,name'
+                            }
+                          }
+                        },
+                        responseFunc
+                      );
+                      // Start the graph request.
+                      new GraphRequestManager().addRequest(infoRequest).start();
+
+                      // console.log("here3");
+
+                      const responseFunc2 = (error, result) => {
+                        if (error) {
+                          console.log(error)
+                          alert('Error fetching data: ' + error.toString());
+                        } else {
+                          console.log(result);
+                          // console.log("here4");
+
+
+                          const responseFunc = (error, result) => {
+                            if (error) {
+                              console.log(error)
+                              alert('Error fetching data: ' + error.toString());
+                            } else {
+                              console.log(result);
+
+                              const responseFunc = (error, result) => {
+                                if (error) {
+                                  console.log(error)
+                                  alert('Error fetching data: ' + error.toString());
+                                } else {
+                                  console.log(result);
+
+                                  const responseFunc = (error, result) => {
+                                    if (error) {
+                                      console.log(error)
+                                      alert('Error fetching data: ' + error.toString());
+                                    } else {
+                                      console.log(result);
+                                      // media and insight datas
+                                    }
+                                  }
+
+                                  let urll = '/'+result.id;
+                                  const infoRequest = new GraphRequest(
+                                    urll,
+                                    {
+                                      parameters: {
+                                        fields: {
+                                          string: 'media{media_url,media_type},media_count'
+                                        }
+                                      }
+                                    },
+                                    responseFunc
+                                  );
+                                  // Start the graph request.
+                                  new GraphRequestManager().addRequest(infoRequest).start()
+                                }
+                              }
+
+                              let urll = '/'+result.instagram_business_account.id;
+                              const infoRequest = new GraphRequest(
+                                urll,
+                                {
+                                  parameters: {
+                                    fields: {
+                                      string: 'username,name'
+                                    }
+                                  }
+                                },
+                                responseFunc
+                              );
+                              // Start the graph request.
+                              new GraphRequestManager().addRequest(infoRequest).start()
+                            }
+                          }
+
+                          let urll = '/'+result.data[0].id;
+                          const infoRequest = new GraphRequest(
+                            urll,
+                            {
+                              parameters: {
+                                fields: {
+                                  string: 'instagram_business_account,name'
+                                }
+                              }
+                            },
+                            responseFunc
+                          );
+                          // Start the graph request.
+                          new GraphRequestManager().addRequest(infoRequest).start();
+
+                        }
+                      }
+                      const infoRequest2 = new GraphRequest(
+                        '/me/accounts',
+                        null,
+                        responseFunc2
+                      );
+                      // Start the graph request.
+                      new GraphRequestManager().addRequest(infoRequest2).start();
+                      // console.log("here5");
+
                     })
                 }
               }
