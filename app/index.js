@@ -24,7 +24,7 @@ class MyApp extends Component{
   constructor(props){
     super(props);
     this.state = {
-      token: null
+      instaToken: null
     };
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
@@ -33,14 +33,17 @@ class MyApp extends Component{
   }
 
   componentDidMount() {
-    AsyncStorage.getItem('token').then((value) => {
-      this.setState({token: value});
+    AsyncStorage.getItem('instaToken').then((value) => {
+      this.setState({instaToken: value});
     }).done();
     AsyncStorage.getItem('uid').then((value) => {
       this.setState({uid: value});
     }).done();
     AsyncStorage.getItem('email').then((value) => {
       this.setState({email: value});
+    }).done();
+    AsyncStorage.getItem('fbID').then((value) => {
+      this.setState({fbID: value});
     }).done();
 
     // firebase.auth().createUserWithEmailAndPassword("email@gmail.com", "passsssss");
@@ -54,9 +57,10 @@ class MyApp extends Component{
 
 
 
-  loginSucced(token){
-    this.setState({ token });
-    AsyncStorage.setItem("token", token);
+  loginSucced(instaToken){
+    this.setState({ instaToken: instaToken,fbID: null });
+    AsyncStorage.setItem("instaToken", instaToken);
+    AsyncStorage.setItem("fbID", null);
   }
 
   async signup() {
@@ -130,13 +134,18 @@ class MyApp extends Component{
 
 
   render(){
-    // if(this.state.token!=null){
+    // if(this.state.instaToken!=null){
     //   return (
-    //     // Alert.alert(this.state.token),
-    //     <TabNav token={this.state.token}/>
+    //     // Alert.alert(this.state.instaToken),
+    //     <TabNav instaToken={this.state.instaToken} />
     //   )
     // }
-    // else{
+    if(this.state.fbID!=null){
+      return(
+        <TabNav fbID={this.state.fbID} />
+      )
+    }
+    else{
       return(
         <View style={styles.container}>
           <TextInput style = {styles.input}
@@ -166,7 +175,7 @@ class MyApp extends Component{
               ref='instagramLogin'
               clientId='e9cd736246f04098903acf6d3c3e8809'
               scopes={['public_content', 'follower_list']}
-              onLoginSuccess={(token) => this.loginSucced(token)}
+              onLoginSuccess={(instaToken) => this.loginSucced(instaToken)}
               redirectUrl='http://localhost:8515/oauth_callback'
           />
           <LoginButton
@@ -269,10 +278,14 @@ class MyApp extends Component{
                                       alert('Error fetching data: ' + error.toString());
                                     } else {
                                       console.log(result);
+                                      // ref:- https://developers.facebook.com/docs/instagram-api/reference/user/#insights
+                                      // ref2:- https://developers.facebook.com/docs/instagram-api/reference/media/#metadata
                                       // media and insight datas
                                     }
                                   }
-
+                                  this.setState({fbID:result.id,instaToken: null});
+                                  AsyncStorage.setItem("fbID", result.id);
+                                  AsyncStorage.setItem("instaToken", null);
                                   let urll = '/'+result.id;
                                   const infoRequest = new GraphRequest(
                                     urll,
@@ -352,7 +365,7 @@ class MyApp extends Component{
           </Button>
         </View>
       )
-    // }
+    }
   }
 }
 

@@ -46,7 +46,12 @@ const TabNavv = (props) => {
   return (
     // Alert.alert(props.token),
     <TabNav
-      screenProps={props.token}
+      screenProps={
+        {
+          instaToken: props.instaToken,
+          fbID: props.fbID
+        }
+      }
     />
   );
 }

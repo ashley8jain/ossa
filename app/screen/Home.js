@@ -7,10 +7,7 @@ import { TabNavigator } from 'react-navigation';
 import Clarifai from 'clarifai';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ImagePicker from 'react-native-image-crop-picker';
-
-
-var ACCESS_TOKEN = '8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
-var REQUEST_URL = 'https://api.instagram.com/v1/users/1686110577/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
+import {GraphRequestManager,GraphRequest} from 'react-native-fbsdk'
 
 var sWidth = Dimensions.get("screen").width/3.0-10;
 
@@ -31,8 +28,6 @@ class App extends Component {
       }),
       loaded: false,
       text: '',
-      submit: false,
-      username: '',
       isTapped:false,
       rawData: []
     };
@@ -42,45 +37,71 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // Alert.alert(this.props.screenProps);
     this.fetchData();
   }
 
   fetchData() {
-    // Alert.alert(this.props.screenProps);
-    fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps)
-    .then(response => response.json())
-    .then((response) => {
-      this.setState({
-        loaded: false,
-        text: this.state.text,
-        submit: true,
-        // username: response.data.username,
-      });
-      fetch('https://api.instagram.com/v1/users/'+response.data.id+'/media/recent/?access_token='+this.props.screenProps)
-      .then((response) => response.json())
-      .then((responseData) => {
-        //console.log(responseData.data);
+    if(this.props.screenProps.instaToken!=null){
+      fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
+      .then(response => response.json())
+      .then((response) => {
 
-        this.setState({
-          rawData: responseData.data,
-          dataSource: this.state.dataSource.cloneWithRows(responseData.data),
-          loaded: true,
-          text: this.state.text,
-          submit: true,
-          username: responseData.data[0].user.username,
-        });
+        fetch('https://api.instagram.com/v1/users/'+response.data.id+'/media/recent/?access_token='+this.props.screenProps.instaToken)
+        .then((response) => response.json())
+        .then((responseData) => {
+          console.log(responseData);
+          this.setState({
+            rawData: responseData.data,
+            dataSource: this.state.dataSource.cloneWithRows(responseData.data),
+            loaded: true,
+            text: this.state.text,
+          });
+        })
+        .done();
       })
-      .done();
-    })
+    }
+    else if(this.props.screenProps.fbID!=null){
+      const responseFunc = (error, result) => {
+        if (error) {
+          console.log(error)
+          alert('Error fetching data: ' + JSON.stringify(error));
+        } else {
+          console.log(result);
+          // alert(JSON.stringify(result));
+          // ref:- https://developers.facebook.com/docs/instagram-api/reference/user/#insights
+          // ref2:- https://developers.facebook.com/docs/instagram-api/reference/media/#metadata
+          // media and insight datas
+          this.setState({
+            rawData: result.media.data,
+            dataSource: this.state.dataSource.cloneWithRows(result.media.data),
+            loaded: true,
+            text: this.state.text,
+          });
+        }
+      }
+
+      let urll = '/'+this.props.screenProps.fbID;
+      const infoRequest = new GraphRequest(
+        urll,
+        {
+          parameters: {
+            fields: {
+              string: 'media{media_url,media_type},media_count'
+            }
+          }
+        },
+        responseFunc
+      );
+      // Start the graph request.
+      new GraphRequestManager().addRequest(infoRequest).start()
+    }
+
+
+
   }
 
   render() {
-    // if (!this.state.submit) {
-    //   return this.renderTextInput();
-    // }
-    //
-    // else
+
     if (!this.state.loaded) {
       return this.renderLoadingView();
     }
@@ -95,29 +116,6 @@ class App extends Component {
         <BottomBar tapped = {this.state.isTapped}/>
         <View style={{position: 'absolute',left: 0,right: 0,bottom: 0,width:'100%'}}>
           <Button onPress={() => this.pickSingle(true)} title="Upload Image" color="#841584" accessibilityLabel="Learn more about this purple button"/>
-        </View>
-      </View>
-    );
-  }
-
-  renderTextInput() {
-    return (
-      <View style={styles.container}>
-        <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-          <Text style={{fontSize: 24, lineHeight: 30}}>IntelMark</Text>
-          <Text style={{fontSize: 8, lineHeight: 18}}>BETA</Text>
-        </View>
-        <View style={styles.container1}>
-          <TextInput style = {styles.input}
-            onChangeText={(text) => this.setState({text})}
-            value={this.state.text}
-            underlineColorAndroid="transparent"
-          />
-          <Button
-             style = {styles.submitButton}
-             onPress = {() => this.fetchData()}
-             title = "search"
-          />
         </View>
       </View>
     );
@@ -182,7 +180,34 @@ class App extends Component {
 
   renderData(data) {
     // console.log("RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE ");
-    console.log(data);
+    // console.log(data);
+    var img_url='';
+    if(this.props.screenProps.instaToken!=null){
+      img_url = data.images.thumbnail.url
+    }
+    else{
+      img_url = data.media_url
+    }
+    return (
+
+      <TouchableWithoutFeedback onPress={(e)=>this.pressView(e,data)}>
+        <View style={styles.piccontainer}>
+          <Image
+            source={{uri: img_url}}
+            style={styles.thumbnail}
+          />
+          {/*<View style={styles.rightContainer}>
+            <Text style={styles.title}>{data.likes.count}</Text>
+            <Text style={styles.year}>{data.comments.count}</Text>
+          </View>*/}
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+
+  renderData2(data) {
+    // console.log("RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE RAINBOW SIX SIEGE ");
+    // console.log(data);
     return (
       <TouchableWithoutFeedback onPress={(e)=>this.pressView(e,data)}
                        // onPress={(e)=>this.handleTaps(e)}
@@ -253,28 +278,28 @@ class OpenImage extends Component{
     }
 
     componentWillMount(){
-    process.nextTick = setImmediate;
+      process.nextTick = setImmediate;
 
-    var app = new Clarifai.App({
-      apiKey: 'b13eedefd5ee4207b1aab989b21930b4'
-    });
+      var app = new Clarifai.App({
+        apiKey: 'b13eedefd5ee4207b1aab989b21930b4'
+      });
 
-    app.models.predict(Clarifai.GENERAL_MODEL, this.props.navigation.state.params.data.images.standard_resolution.url)
-    .then(response =>  {
-        console.log("abcbdjkfkajsndjksandjkas");
-        //console.log(JSON.stringify(response.outputs[0].data.concepts, null, 2));
-        this.setState({
-          tags: response.outputs[0].data.concepts
-        });
-
-        console.log("abcbdjkfkajsndjksandjkas");
-        console.log(this.state.tags);``
-      },
-      function(err) {
-        console.error(err);
-        console.log("ERROR ERROR ERROR")
-        }
-      );
+      // app.models.predict(Clarifai.GENERAL_MODEL, this.props.navigation.state.params.data.images.standard_resolution.url)
+      // .then(response =>  {
+      //     console.log("abcbdjkfkajsndjksandjkas");
+      //     //console.log(JSON.stringify(response.outputs[0].data.concepts, null, 2));
+      //     this.setState({
+      //       tags: response.outputs[0].data.concepts
+      //     });
+      //
+      //     console.log("abcbdjkfkajsndjksandjkas");
+      //     console.log(this.state.tags);``
+      //   },
+      //   function(err) {
+      //     console.error(err);
+      //     console.log("ERROR ERROR ERROR")
+      //     }
+      //   );
 
     }
 
@@ -308,11 +333,19 @@ class OpenImage extends Component{
                 }
                 </ScrollView>
               </View>
-            </View>)
-      }
+        </View>
+      )
+    }
 
-      render(){
-        return(
+    render(){
+      var img_url='';
+      if(this.props.screenProps.instaToken!=null){
+        img_url = this.props.navigation.state.params.data.images.thumbnail.url
+      }
+      else{
+        img_url = this.props.navigation.state.params.data.media_url
+      }
+      return(
         <View style = {{flex:1, backgroundColor: '#F9F9F9'}} >
           <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center', alignItems: 'center'}} >
             <Text style = {{padding: 10, fontSize: 19, fontWeight: 'bold'}} >
@@ -321,7 +354,7 @@ class OpenImage extends Component{
           </View>
           <View style = {styles.textCaption}>
             <Image
-                  source={{uri: this.props.navigation.state.params.data.images.thumbnail.url}}
+                  source={{uri: img_url}}
                 /*style={{width:this.props.navigation.state.params.data.images.standard_resolution.width,
                         height:this.props.navigation.state.params.data.images.standard_resolution.height,
                         }}*/
@@ -358,10 +391,9 @@ class OpenImage extends Component{
               <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
               <Switch style = {{marginRight: 10}} value = {true} />
           </View>
-        </View>)
-      }
-
-
+        </View>
+      )
+    }
 
 }
 
