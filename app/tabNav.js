@@ -5,8 +5,8 @@ import { TabNavigator } from 'react-navigation'
 import Home from './screen/Home'
 import Search from './screen/Search'
 import ThirdScreen from './screen/ThirdScreen'
-import FourthScreen from './screen/FourthScreen'
-import FifthScreen from './screen/FifthScreen'
+import Insight from './screen/Insight'
+import Profile from './screen/Profile'
 
 // ref: https://reactnavigation.org/docs/navigators/tab
 
@@ -16,8 +16,8 @@ const TabNavv = (props) => {
       Home: {screen: Home},
       Search: {screen: Search},
       Tab3: {screen: ThirdScreen},
-      Tab4: {screen: FourthScreen},
-      Tab5: {screen: FifthScreen}
+      Insight: {screen: Insight},
+      Profile: {screen: Profile}
   },
   {
     tabBarPosition: 'bottom',

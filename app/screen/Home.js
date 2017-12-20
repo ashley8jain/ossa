@@ -46,7 +46,7 @@ class App extends Component {
       .then(response => response.json())
       .then((response) => {
 
-        fetch('https://api.instagram.com/v1/users/'+response.data.id+'/media/recent/?access_token='+this.props.screenProps.instaToken)
+        fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
         .then((response) => response.json())
         .then((responseData) => {
           console.log(responseData);
