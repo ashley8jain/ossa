@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View,ScrollView,TextInput,StyleSheet, Button} from 'react-native';
+import { Platform,Text, View,ScrollView,TextInput,StyleSheet, Button, Picker,PickerIOS} from 'react-native';
 import ChartView from 'react-native-highcharts'; // 1.0.2
 import Icon from 'react-native-vector-icons/MaterialIcons'
-
+import {GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
 
 export default class App extends Component {
 
@@ -19,6 +19,8 @@ export default class App extends Component {
 			user_name : '',
 			follow_ratio_prop : 0.0,
 			follow_arr:[],
+      loaded: false,
+      loaded2: false,
 		}
 	}
 
@@ -42,17 +44,71 @@ export default class App extends Component {
       fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
   		.then((response)=>response.json())
   		.then((response)=>{
-  			foo.push(response.data.counts.followed_by)
-  			foo.push(response.data.counts.follows)
+  			foo.push(['followers',response.data.counts.followed_by])
+  			foo.push(['following',response.data.counts.follows])
   			this.setState({
   				follow_ratio_prop : (response.data.counts.followed_by/response.data.counts.follows),
   				follow_arr:foo,
-          user_name: response.data.username
+          user_name: response.data.username,
+          loaded: true
   			});
   		}))
   		.catch((error) => {
   			console.error(error);
   		});
+
+      const responseFunc = (error, result) => {
+        if (error) {
+          console.log(error)
+          alert('Error fetching data: ' + JSON.stringify(error));
+        } else {
+
+          //audience_gender_age
+          var mapp = result.data[0].values[0].value;
+          var gender_age_data = [];
+          console.log(mapp);
+          Object.keys(mapp).forEach(function(key) {
+            gender_age_data.push([key,mapp[key]]);
+          })
+          this.setState({gender_age_dist: gender_age_data,loaded2: true})
+
+          //audience_country
+          mapp = result.data[1].values[0].value;
+          var country_data = [];
+          console.log(mapp);
+          Object.keys(mapp).forEach(function(key) {
+            country_data.push([key,mapp[key]]);
+          })
+          this.setState({country_dist: country_data,loaded2: true})
+
+          //audience_city
+          mapp = result.data[2].values[0].value;
+          var cities_data = [];
+          console.log(mapp);
+          Object.keys(mapp).forEach(function(key) {
+            cities_data.push([key,mapp[key]]);
+          })
+          this.setState({cities_dist: cities_data,loaded2: true})
+        }
+      }
+
+      let urll = '/'+this.props.screenProps.fbID+'/insights';
+      const infoRequest = new GraphRequest(
+        urll,
+        {
+          parameters: {
+            metric: {
+              string: 'audience_gender_age,audience_country,audience_city'
+            },
+            period: {
+              string: 'lifetime'
+            }
+          }
+        },
+        responseFunc
+      );
+      // Start the graph request.
+      new GraphRequestManager().addRequest(infoRequest).start()
   }
 
   render() {
@@ -145,9 +201,6 @@ export default class App extends Component {
   			type:'pie',
   			backgroundColor: '#FFD1FF',
   		},
-  		xAxis: {
-  			categories: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-  		},
   		colors:['#FFB2D1','#FF1A75','#FF267D','#FF3385','#FF4C94','#FF73AB','#FF99C2'],
   		series: [{
   			type : 'pie',
@@ -176,9 +229,6 @@ export default class App extends Component {
   			type:'pie',
   			backgroundColor: '#FFC7AB',
   		},
-  		xAxis: {
-  			categories: ['followers','following']
-  		},
   	 	colors:['Tomato','DodgerBlue'],
   		series:[{
   			type: 'pie',
@@ -186,6 +236,37 @@ export default class App extends Component {
   			showInLegend:false
   		}]
   	}
+
+    var gender_age_pie = {
+  		title: {
+  			text: 'Gender & Age'
+  		},
+  		chart :{
+  			type:'pie',
+  			backgroundColor: '#FFD1FF',
+  		},
+  		series: [{
+  			type : 'pie',
+  			data: this.state.gender_age_dist,
+  			showInLegend: false
+  		}]
+  	};
+
+    var country_pie = {
+  		title: {
+  			text: 'Country'
+  		},
+  		chart :{
+  			type:'pie',
+  			backgroundColor: '#FCFFC5',
+  		},
+  		series: [{
+  			type : 'pie',
+  			data: this.state.country_dist,
+  			showInLegend: false
+  		}]
+  	};
+
 
   	const spline_chart_looks = {
   		global: {
@@ -216,9 +297,24 @@ export default class App extends Component {
 
 	// }
 
+// ref:- https://stackoverflow.com/questions/35397678/bind-picker-to-list-of-picker-item-in-react-native
+  // <Picker
+  //   selectedValue={this.state.PickerValueHolder}
+  //
+  //   onValueChange={(itemValue, itemIndex) => this.setState({PickerValueHolder: itemValue})} >
+  //
+  //   <Picker.Item label="React Native" value="React Native" />
+  //   <Picker.Item label="Java" value="Java" />
+  //   <Picker.Item label="Html" value="Html" />
+  //   <Picker.Item label="Php" value="Php" />
+  //   <Picker.Item label="C++" value="C++" />
+  //   <Picker.Item label="JavaScript" value="JavaScript" />
+  //
+  // </Picker>
+
   	return (
   		<View style={styles.container}>
-  		  <Text style = {styles.Text}>{this.state.user_name}</Text>
+        <Text style = {styles.Text}>{this.state.user_name}</Text>
   		  <ScrollView>
         	<ChartView style={{height:300}} config={likes_chart} options={spline_chart_looks}></ChartView>
         	<ChartView style={{height:300}} config={comments_chart} spline_chart_looks={spline_chart_looks}></ChartView>
@@ -226,7 +322,9 @@ export default class App extends Component {
         	<ChartView style={{height:300}} config={hours_posted_pie} options={gradient_inducers}></ChartView>
         	<ChartView style={{height:300}} config={Donut} options={gradient_inducers}></ChartView>
           <Text style = {{textAlign : 'center', color: '#001F6B',fontWeight:'bold'}}>follow ratio: {this.state.follow_ratio_prop}</Text>
-
+          <Text style = {styles.Text}>Business account</Text>
+          <ChartView style={{height:300}} config={gender_age_pie} options={gradient_inducers}></ChartView>
+          <ChartView style={{height:300}} config={country_pie} options={gradient_inducers}></ChartView>
     		</ScrollView>
   	 </View>
     );
@@ -239,6 +337,12 @@ const styles = StyleSheet.create(
      container:
      {
          flex: 1,
+         ...Platform.select({
+           ios: {
+              paddingTop: 20
+            },
+            android: {}
+          }),
      },
      Text:
   	 {

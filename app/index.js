@@ -134,15 +134,10 @@ class MyApp extends Component{
 
 
   render(){
-    if(this.state.instaToken!=null){
+    if(this.state.instaToken!=null && this.state.fbID!=null){
       return (
         // Alert.alert(this.state.instaToken),
-        <TabNav instaToken={this.state.instaToken} />
-      )
-    }
-    else if(this.state.fbID!=null){
-      return(
-        <TabNav fbID={this.state.fbID} />
+        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} />
       )
     }
     else{
