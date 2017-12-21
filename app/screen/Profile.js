@@ -1,5 +1,5 @@
 import React,{ Component } from 'react'
-import {Text,View,StyleSheet} from 'react-native'
+import {Text,View,Button,StyleSheet} from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
 export default class FifthScreen extends Component {
@@ -11,7 +11,7 @@ export default class FifthScreen extends Component {
   render() {
     return(
       <View style={styles.container}>
-        <Text>FifthScreen</Text>
+        <Button onPress={() => this.props.screenProps.logoutFunc()} title="Logout" />
       </View>
     );
   }

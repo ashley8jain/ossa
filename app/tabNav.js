@@ -49,7 +49,8 @@ const TabNavv = (props) => {
       screenProps={
         {
           instaToken: props.instaToken,
-          fbID: props.fbID
+          fbID: props.fbID,
+          logoutFunc: props.logoutFunc
         }
       }
     />

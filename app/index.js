@@ -4,7 +4,6 @@ import InstagramLogin from 'react-native-instagram-login';
 import * as firebase from "firebase";
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
 
-
 import TabNav from './tabNav'
 
 
@@ -26,6 +25,7 @@ class MyApp extends Component{
     this.state = {
       instaToken: null
     };
+    this.logout = this.logout.bind(this);
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.setUserMobile = this.setUserMobile.bind(this);
@@ -58,9 +58,8 @@ class MyApp extends Component{
 
 
   loginSucced(instaToken){
-    this.setState({ instaToken: instaToken,fbID: null });
+    this.setState({ instaToken: instaToken});
     AsyncStorage.setItem("instaToken", instaToken);
-    AsyncStorage.setItem("fbID", null);
   }
 
   async signup() {
@@ -98,15 +97,41 @@ class MyApp extends Component{
     }
   }
 
-  // async logout() {
-  //   try {
-  //       await firebase.auth().signOut();
-  //       // Navigate to login view
-  //
-  //   } catch (error) {
-  //       console.log(error);
-  //   }
-  // }
+  async loginFirebase_usingFB(credential){
+    await firebase.auth().signInWithCredential(credential).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      alert(errorMessage);
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+    });
+
+    let user = await firebase.auth().currentUser;
+    this.setState(
+      {uid:user.uid}
+    );
+    console.log("firebase user id: "+user.uid);
+    AsyncStorage.setItem("uid", user.uid);
+  }
+
+  logout() {
+
+    firebase.auth().signOut();
+    LoginManager.logOut();
+
+    this.setState({uid:null,email:null,instaToken:null,fbID:null});
+    let keys = ['uid','email','instaToken','fbID'];
+    AsyncStorage.multiRemove(keys, (err) => {
+    });
+
+    alert("logout.");
+    // Navigate to login view
+
+  }
 
   setUserMobile(){
     Keyboard.dismiss();
@@ -137,7 +162,7 @@ class MyApp extends Component{
     if(this.state.instaToken!=null && this.state.fbID!=null){
       return (
         // Alert.alert(this.state.instaToken),
-        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} />
+        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} logoutFunc={this.logout} />
       )
     }
     else{
@@ -193,24 +218,8 @@ class MyApp extends Component{
                       var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
                       // alert(credential.toString());
                       // Sign in with credential from the Google user.
-                      firebase.auth().signInWithCredential(credential).catch(function(error) {
-                        // Handle Errors here.
-                        var errorCode = error.code;
-                        var errorMessage = error.message;
-                        alert(errorMessage);
-                        // The email of the user's account used.
-                        var email = error.email;
-                        // The firebase.auth.AuthCredential type that was used.
-                        var credential = error.credential;
-                        // ...
-                      });
+                      this.loginFirebase_usingFB(credential);
 
-                      let user = firebase.auth().currentUser;
-                      this.setState(
-                        {uid:user.uid}
-                      );
-                      console.log("firebase user id: "+user.uid);
-                      AsyncStorage.setItem("uid", user.uid);
 
                       // console.log("here1");
                       //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
@@ -280,7 +289,6 @@ class MyApp extends Component{
                                   }
                                   this.setState({fbID:result.id,instaToken: null});
                                   AsyncStorage.setItem("fbID", result.id);
-                                  AsyncStorage.setItem("instaToken", null);
                                   let urll = '/'+result.id;
                                   const infoRequest = new GraphRequest(
                                     urll,
