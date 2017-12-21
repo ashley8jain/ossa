@@ -8,6 +8,7 @@ import Clarifai from 'clarifai';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import ImagePicker from 'react-native-image-crop-picker';
 import {GraphRequestManager,GraphRequest} from 'react-native-fbsdk'
+import { Dialog } from 'react-native-simple-dialogs';
 
 
 class App extends Component {
@@ -28,10 +29,12 @@ class App extends Component {
       loaded: false,
       text: '',
       isTapped:false,
-      rawData: []
+      rawData: [],
+      dialogVisible: false,
     };
     this.pressView = this.pressView.bind(this);
-    this.pickSingle = this.pickSingle.bind(this);
+    this.pickCamera = this.pickCamera.bind(this);
+    this.pickGallery = this.pickGallery.bind(this);
   }
 
 
@@ -117,8 +120,17 @@ class App extends Component {
           renderRow={this.renderData.bind(this)}
           contentContainerStyle={styles.list}
         />
+        <Dialog
+          visible={this.state.dialogVisible}
+          title="Select Source"
+          onTouchOutside={() => this.setState({dialogVisible: false})} >
+          <View>
+            <Button onPress={() => this.pickCamera()} title="Camera" />
+            <Button onPress={() => this.pickGallery()} title="Gallery" />
+          </View>
+      </Dialog>
         <View style={{position: 'absolute',left: 0,right: 0,bottom: 0,width:'100%'}}>
-          <Button onPress={() => this.pickSingle(true)} title="Upload Image" color="#841584"/>
+          <Button onPress={() => this.popup_dialog()} title="Upload Image" color="#841584"/>
         </View>
       </View>
     );
@@ -131,41 +143,75 @@ class App extends Component {
     this.props.navigation.navigate('Profile',{data});
   }
 
-  pickSingle(cropit, circular=false) {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: cropit,
-      cropperCircleOverlay: circular,
-      compressImageMaxWidth: 640,
-      compressImageMaxHeight: 480,
-      compressImageQuality: 0.5,
-      compressVideoPreset: 'MediumQuality',
-      includeExif: true,
-    }).then(image => {
-      // console.log('received image', image);
-      var data = {'images':{
-        'thumbnail': {
-          'url': image.path}
-      }}
-      // console.log(data);
-      // console.log("After");
-      // data = data.concat(this.state.rawData);
-      // data.push(...this.state.rawData);
-      // console.log(data);
+  popup_dialog(){
+    this.setState({dialogVisible:true});
+  }
 
-      this.setState({
-        rawData: this.state.rawData.concat(data),
-        dataSource: this.state.dataSource.cloneWithRows(this.state.rawData.concat(data)),
+  pickCamera(){
+
+    this.setState({dialogVisible:false},() => {
+      ImagePicker.openCamera({
+        width: 300,
+        height: 300,
+        cropping: true,
+        cropperCircleOverlay: false,
+        compressImageMaxWidth: 640,
+        compressImageMaxHeight: 480,
+        compressImageQuality: 0.5,
+        compressVideoPreset: 'MediumQuality',
+        includeExif: true,
+      }).then(image => {
+        var data = {'images':{
+          'thumbnail': {
+            'url': image.path}
+        }}
+
+        this.setState({
+          rawData: this.state.rawData.concat(data),
+          dataSource: this.state.dataSource.cloneWithRows(this.state.rawData.concat(data)),
+        });
+
+        console.log(this.state.rawData);
+
+      }).catch(e => {
+        console.log(e);
+        Alert.alert(e.message ? e.message : e);
       });
-
-      console.log("RAW DATA");
-      console.log(this.state.rawData);
-
-    }).catch(e => {
-      console.log(e);
-      Alert.alert(e.message ? e.message : e);
     });
+  }
+
+  pickGallery(){
+
+    this.setState({dialogVisible:false},() => {
+      ImagePicker.openPicker({
+        width: 300,
+        height: 300,
+        cropping: true,
+        cropperCircleOverlay: false,
+        compressImageMaxWidth: 640,
+        compressImageMaxHeight: 480,
+        compressImageQuality: 0.5,
+        compressVideoPreset: 'MediumQuality',
+        includeExif: true,
+      }).then(image => {
+        var data = {'images':{
+          'thumbnail': {
+            'url': image.path}
+        }}
+
+        this.setState({
+          rawData: this.state.rawData.concat(data),
+          dataSource: this.state.dataSource.cloneWithRows(this.state.rawData.concat(data)),
+        });
+
+        console.log(this.state.rawData);
+
+      }).catch(e => {
+        console.log(e);
+        Alert.alert(e.message ? e.message : e);
+      });
+    });
+
   }
 
   renderData(data) {
