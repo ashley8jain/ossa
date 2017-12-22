@@ -140,7 +140,7 @@ class App extends Component {
 
   pressView(data){
     // ToastAndroid.show(item.name, ToastAndroid.SHORT);
-    this.props.navigation.navigate('Profile',{data});
+    this.props.navigation.navigate('ImageSelected',{data});
   }
 
   popup_dialog(){
@@ -405,7 +405,7 @@ const ModalStack = StackNavigator({
   Login: {
       screen: App
   },
-  Profile: {
+  ImageSelected: {
     screen: OpenImage,
   },
 

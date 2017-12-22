@@ -199,7 +199,7 @@ class MyApp extends Component{
               redirectUrl='http://localhost:8515/oauth_callback'
           />
           <LoginButton
-            readPermissions={["public_profile","email","pages_show_list","instagram_basic","instagram_manage_insights"]}
+            publishPermissions={['manage_pages']}
             onLoginFinished={
               (error, result) => {
                 if (error) {
@@ -209,147 +209,160 @@ class MyApp extends Component{
                 } else {
                   console.log("Result: "+JSON.stringify(result));
                   // permission object - https://developers.facebook.com/docs/facebook-login/permissions#reference-public_profile
-                  AccessToken.getCurrentAccessToken().then(
-                    (data) => {
-                      console.log("Data: "+JSON.stringify(data));
-                      let accessToken = data.accessToken;
-                      console.log("fb token: "+accessToken);
-                      // Build Firebase credential with the Facebook access token.
-                      var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
-                      // alert(credential.toString());
-                      // Sign in with credential from the Google user.
-                      this.loginFirebase_usingFB(credential);
+                  LoginManager.logInWithReadPermissions(["public_profile","email","instagram_basic","instagram_manage_insights"]).then(
+                    function(result) {
+                      if (result.isCancelled) {
+                        alert('Login cancelled');
+                      } else {
+                        AccessToken.getCurrentAccessToken().then(
+                          (data) => {
+                            console.log("Data: "+JSON.stringify(data));
+                            let accessToken = data.accessToken;
+                            console.log("fb token: "+accessToken);
+                            // Build Firebase credential with the Facebook access token.
+                            var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
+                            // alert(credential.toString());
+                            // Sign in with credential from the Google user.
+                            this.loginFirebase_usingFB(credential);
 
 
-                      // console.log("here1");
-                      //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
-                      const responseFunc = (error, result) => {
-                        if (error) {
-                          console.log(error)
-                          alert('Error fetching data: ' + error.toString());
-                        } else {
-                          console.log(result)
-                          this.setState({email:result.email});
-                          // alert(json.email);
-                          AsyncStorage.setItem("email", result.email);
-                          // console.log("here2");
+                            // console.log("here1");
+                            //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
+                            const responseFunc = (error, result) => {
+                              if (error) {
+                                console.log(error)
+                                alert('Error fetching data: ' + error.toString());
+                              } else {
+                                console.log(result)
+                                this.setState({email:result.email});
+                                // alert(json.email);
+                                AsyncStorage.setItem("email", result.email);
+                                // console.log("here2");
 
-                          // alert('Success fetching data: ' + JSON.stringify(result));
-                        }
-                      }
-                      const infoRequest = new GraphRequest(
-                        '/me',
-                        {
-                          parameters: {
-                            fields: {
-                              string: 'email,gender,name'
+                                // alert('Success fetching data: ' + JSON.stringify(result));
+                              }
                             }
-                          }
-                        },
-                        responseFunc
-                      );
-                      // Start the graph request.
-                      new GraphRequestManager().addRequest(infoRequest).start();
-
-                      // console.log("here3");
-
-                      const responseFunc2 = (error, result) => {
-                        if (error) {
-                          console.log(error)
-                          alert('Error fetching data: ' + error.toString());
-                        } else {
-                          console.log(result);
-                          // console.log("here4");
-
-
-                          const responseFunc = (error, result) => {
-                            if (error) {
-                              console.log(error)
-                              alert('Error fetching data: ' + error.toString());
-                            } else {
-                              console.log(result);
-
-                              const responseFunc = (error, result) => {
-                                if (error) {
-                                  console.log(error)
-                                  alert('Error fetching data: ' + error.toString());
-                                } else {
-                                  console.log(result);
-
-                                  const responseFunc = (error, result) => {
-                                    if (error) {
-                                      console.log(error)
-                                      alert('Error fetching data: ' + error.toString());
-                                    } else {
-                                      console.log(result);
-                                      // ref:- https://developers.facebook.com/docs/instagram-api/reference/user/#insights
-                                      // ref2:- https://developers.facebook.com/docs/instagram-api/reference/media/#metadata
-                                      // media and insight datas
-                                    }
+                            const infoRequest = new GraphRequest(
+                              '/me',
+                              {
+                                parameters: {
+                                  fields: {
+                                    string: 'email,gender,name'
                                   }
-                                  this.setState({fbID:result.id,instaToken: null});
-                                  AsyncStorage.setItem("fbID", result.id);
-                                  let urll = '/'+result.id;
-                                  const infoRequest = new GraphRequest(
-                                    urll,
-                                    {
-                                      parameters: {
-                                        fields: {
-                                          string: 'media{media_url,media_type},media_count'
+                                }
+                              },
+                              responseFunc
+                            );
+                            // Start the graph request.
+                            new GraphRequestManager().addRequest(infoRequest).start();
+
+                            // console.log("here3");
+
+                            const responseFunc2 = (error, result) => {
+                              if (error) {
+                                console.log(error)
+                                alert('Error fetching data: ' + error.toString());
+                              } else {
+                                console.log(result);
+                                // console.log("here4");
+
+
+                                const responseFunc = (error, result) => {
+                                  if (error) {
+                                    console.log(error)
+                                    alert('Error fetching data: ' + error.toString());
+                                  } else {
+                                    console.log(result);
+
+                                    const responseFunc = (error, result) => {
+                                      if (error) {
+                                        console.log(error)
+                                        alert('Error fetching data: ' + error.toString());
+                                      } else {
+                                        console.log(result);
+
+                                        const responseFunc = (error, result) => {
+                                          if (error) {
+                                            console.log(error)
+                                            alert('Error fetching data: ' + error.toString());
+                                          } else {
+                                            console.log(result);
+                                            // ref:- https://developers.facebook.com/docs/instagram-api/reference/user/#insights
+                                            // ref2:- https://developers.facebook.com/docs/instagram-api/reference/media/#metadata
+                                            // media and insight datas
+                                          }
                                         }
+                                        this.setState({fbID:result.id,instaToken: null});
+                                        AsyncStorage.setItem("fbID", result.id);
+                                        let urll = '/'+result.id;
+                                        const infoRequest = new GraphRequest(
+                                          urll,
+                                          {
+                                            parameters: {
+                                              fields: {
+                                                string: 'media{media_url,media_type},media_count'
+                                              }
+                                            }
+                                          },
+                                          responseFunc
+                                        );
+                                        // Start the graph request.
+                                        new GraphRequestManager().addRequest(infoRequest).start()
                                       }
-                                    },
-                                    responseFunc
-                                  );
-                                  // Start the graph request.
-                                  new GraphRequestManager().addRequest(infoRequest).start()
-                                }
-                              }
-
-                              let urll = '/'+result.instagram_business_account.id;
-                              const infoRequest = new GraphRequest(
-                                urll,
-                                {
-                                  parameters: {
-                                    fields: {
-                                      string: 'username,name'
                                     }
+                                    console.log("hereeee: "+JSON.stringify(result));
+                                    let urll = '/'+result.instagram_business_account.id;
+                                    const infoRequest = new GraphRequest(
+                                      urll,
+                                      {
+                                        parameters: {
+                                          fields: {
+                                            string: 'username,name'
+                                          }
+                                        }
+                                      },
+                                      responseFunc
+                                    );
+                                    // Start the graph request.
+                                    new GraphRequestManager().addRequest(infoRequest).start()
                                   }
-                                },
-                                responseFunc
-                              );
-                              // Start the graph request.
-                              new GraphRequestManager().addRequest(infoRequest).start()
-                            }
-                          }
-
-                          let urll = '/'+result.data[0].id;
-                          const infoRequest = new GraphRequest(
-                            urll,
-                            {
-                              parameters: {
-                                fields: {
-                                  string: 'instagram_business_account,name'
                                 }
+
+                                let urll = '/'+result.data[0].id;
+                                const infoRequest = new GraphRequest(
+                                  urll,
+                                  {
+                                    parameters: {
+                                      fields: {
+                                        string: 'instagram_business_account,name'
+                                      }
+                                    }
+                                  },
+                                  responseFunc
+                                );
+                                // Start the graph request.
+                                new GraphRequestManager().addRequest(infoRequest).start();
+
                               }
-                            },
-                            responseFunc
-                          );
-                          // Start the graph request.
-                          new GraphRequestManager().addRequest(infoRequest).start();
+                            }
+                            const infoRequest2 = new GraphRequest(
+                              '/me/accounts',
+                              null,
+                              responseFunc2
+                            );
+                            // Start the graph request.
+                            new GraphRequestManager().addRequest(infoRequest2).start();
+                            // console.log("here5");
 
-                        }
+                          })
                       }
-                      const infoRequest2 = new GraphRequest(
-                        '/me/accounts',
-                        null,
-                        responseFunc2
-                      );
-                      // Start the graph request.
-                      new GraphRequestManager().addRequest(infoRequest2).start();
-                      // console.log("here5");
+                    }.bind(this),
+                    function(error) {
+                      alert('Login fail with error: ' + error);
+                    }
 
-                    })
+                  );
+
                 }
               }
             }
