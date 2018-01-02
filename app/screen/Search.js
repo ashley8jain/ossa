@@ -9,16 +9,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Button,
   WebView,
   View,
 } from 'react-native';
+import { Button } from 'react-native-elements'
 
 import Icon from 'react-native-vector-icons/MaterialIcons'
 // import { Chart } from 'react-google-charts';
-
-var ACCESS_TOKEN = '8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
-var REQUEST_URL = 'https://api.instagram.com/v1/users/1686110577/media/recent/?access_token=8593252.c09ec1a.83deea9350bf4bb39f82c5937c86e56b';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -99,11 +96,12 @@ export default class App extends React.Component {
             value={this.state.text}
             underlineColorAndroid="transparent"
           />
+
           <Button
-             style = {styles.submitButton}
-             onPress = {() => this.fetchData()}
-             title = "search"
-          />
+            raised
+            onPress = {() => this.fetchData()}
+            title="SEARCH"
+            backgroundColor='#397af8' />
         </View>
       </View>
     );

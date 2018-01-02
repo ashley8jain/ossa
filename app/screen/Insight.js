@@ -19,8 +19,8 @@ export default class App extends Component {
 			user_name : '',
 			follow_ratio_prop : 0.0,
 			follow_arr:[],
-      loaded: false,
-      loaded2: false,
+
+
 		}
 	}
 
@@ -31,6 +31,7 @@ export default class App extends Component {
 	  fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
 	  .then((response) => response.json())
   	.then((response) => {
+      console.log(response);
       for(var i=0;i<response.data.length;i++){
         arr.push(response.data[i]);
       }
@@ -44,18 +45,17 @@ export default class App extends Component {
       fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
   		.then((response)=>response.json())
   		.then((response)=>{
+        console.log(response);
   			foo.push(['followers',response.data.counts.followed_by])
   			foo.push(['following',response.data.counts.follows])
   			this.setState({
   				follow_ratio_prop : (response.data.counts.followed_by/response.data.counts.follows),
   				follow_arr:foo,
           user_name: response.data.username,
-          loaded: true
+
   			});
   		}))
-  		.catch((error) => {
-  			console.error(error);
-  		});
+
 
       const responseFunc = (error, result) => {
         if (error) {
@@ -70,7 +70,7 @@ export default class App extends Component {
           Object.keys(mapp).forEach(function(key) {
             gender_age_data.push([key,mapp[key]]);
           })
-          this.setState({gender_age_dist: gender_age_data,loaded2: true})
+          this.setState({gender_age_dist: gender_age_data})
 
           //audience_country
           mapp = result.data[1].values[0].value;
@@ -79,7 +79,7 @@ export default class App extends Component {
           Object.keys(mapp).forEach(function(key) {
             country_data.push([key,mapp[key]]);
           })
-          this.setState({country_dist: country_data,loaded2: true})
+          this.setState({country_dist: country_data})
 
           //audience_city
           mapp = result.data[2].values[0].value;
@@ -88,7 +88,7 @@ export default class App extends Component {
           Object.keys(mapp).forEach(function(key) {
             cities_data.push([key,mapp[key]]);
           })
-          this.setState({cities_dist: cities_data,loaded2: true})
+          this.setState({cities_dist: cities_data})
         }
       }
 
@@ -323,8 +323,8 @@ export default class App extends Component {
         	<ChartView style={{height:300}} config={Donut} options={gradient_inducers}></ChartView>
           <Text style = {{textAlign : 'center', color: '#001F6B',fontWeight:'bold'}}>follow ratio: {this.state.follow_ratio_prop}</Text>
           <Text style = {styles.Text}>Business account</Text>
-          <ChartView style={{height:300}} config={gender_age_pie} options={gradient_inducers}></ChartView>
-          <ChartView style={{height:300}} config={country_pie} options={gradient_inducers}></ChartView>
+          <ChartView style={{height:300}} config={gender_age_pie}></ChartView>
+          <ChartView style={{height:300}} config={country_pie}></ChartView>
     		</ScrollView>
   	 </View>
     );

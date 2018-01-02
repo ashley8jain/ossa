@@ -35,6 +35,7 @@ class App extends Component {
     this.pressView = this.pressView.bind(this);
     this.pickCamera = this.pickCamera.bind(this);
     this.pickGallery = this.pickGallery.bind(this);
+    
   }
 
 
@@ -45,9 +46,6 @@ class App extends Component {
   //loads media from endpoint API
   fetchData() {
     if(this.props.screenProps.instaToken!=null){
-      fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
-      .then(response => response.json())
-      .then((response) => {
 
         fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
         .then((response) => response.json())
@@ -59,9 +57,7 @@ class App extends Component {
             loaded: true,
             text: this.state.text,
           });
-        })
-        .done();
-      })
+        });
     }
     else if(this.props.screenProps.fbID!=null){
       const responseFunc = (error, result) => {
