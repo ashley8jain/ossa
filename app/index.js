@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Button, Keyboard } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Keyboard } from 'react-native'
 import InstagramLogin from 'react-native-instagram-login';
 import * as firebase from "firebase";
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
+import { Button,Card,Avatar } from 'react-native-elements'
 
 import TabNav from './tabNav'
 
@@ -162,42 +163,12 @@ class MyApp extends Component{
     if(this.state.instaToken!=null && this.state.fbID!=null){
       return (
         // Alert.alert(this.state.instaToken),
-        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} logoutFunc={this.logout} />
+        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} email={this.state.email} logoutFunc={this.logout} />
       )
     }
     else{
       return(
         <View style={styles.container}>
-          <TextInput style = {styles.input}
-            onChangeText={(email) => this.setState({email})}
-            value={this.state.email}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="email"
-          />
-          <TextInput style = {styles.input}
-            onChangeText={(password) => this.setState({password})}
-            value={this.state.password}
-            underlineColorAndroid="transparent"
-            autoCapitalize="none"
-            secureTextEntry={true}
-            placeholder="password"
-          />
-          <Button onPress={this.signup} textStyle={{fontSize: 18}} title = "Sign up" >
-          </Button>
-          <Button onPress={this.login} textStyle={{fontSize: 18}} title = "Login" >
-          </Button>
-          <TouchableOpacity onPress={()=> this.refs.instagramLogin.show()}>
-            <Text style={{color: 'blue'}}>Login with Instagram</Text>
-          </TouchableOpacity>
-          <InstagramLogin
-              ref='instagramLogin'
-              clientId='e9cd736246f04098903acf6d3c3e8809'
-              scopes={['public_content', 'follower_list']}
-              onLoginSuccess={(instaToken) => this.loginSucced(instaToken)}
-              redirectUrl='http://localhost:8515/oauth_callback'
-          />
           <LoginButton
             publishPermissions={['manage_pages']}
             onLoginFinished={
@@ -233,8 +204,8 @@ class MyApp extends Component{
                                 console.log(error)
                                 alert('Error fetching data: ' + error.toString());
                               } else {
-                                console.log(result)
-                                this.setState({email:result.email});
+                                console.log("hereeee: "+JSON.stringify(result))
+                                this.setState({email:result.email,gender:result.gender});
                                 // alert(json.email);
                                 AsyncStorage.setItem("email", result.email);
                                 // console.log("here2");
@@ -368,22 +339,57 @@ class MyApp extends Component{
             }
             onLogoutFinished={() => alert("logout.")}
           />
-          <TextInput style = {styles.input}
-            onChangeText={(mobile) => this.setState({mobile})}
-            value={this.state.mobile}
-            underlineColorAndroid="transparent"
-            keyboardType="phone-pad"
-            placeholder="mobile"
+          <View style={{margin: 10}}>
+            <Button
+              raised
+              title="Login with Instagram"
+              onPress={()=> this.refs.instagramLogin.show()}
+              backgroundColor='#E100A2'/>
+          </View>
+          <InstagramLogin
+              ref='instagramLogin'
+              clientId='e9cd736246f04098903acf6d3c3e8809'
+              scopes={['public_content', 'follower_list']}
+              onLoginSuccess={(instaToken) => this.loginSucced(instaToken)}
+              redirectUrl='http://localhost:8515/oauth_callback'
           />
-          <Button onPress={this.setUserMobile} textStyle={{fontSize: 18}} title = "Save" >
-          </Button>
-          <Button onPress={this.listenUserMobile} textStyle={{fontSize: 18}} title = "Load" >
-          </Button>
         </View>
       )
     }
   }
 }
+
+// <TextInput style = {styles.input}
+//   onChangeText={(email) => this.setState({email})}
+//   value={this.state.email}
+//   underlineColorAndroid="transparent"
+//   autoCapitalize="none"
+//   keyboardType="email-address"
+//   placeholder="email"
+// />
+// <TextInput style = {styles.input}
+//   onChangeText={(password) => this.setState({password})}
+//   value={this.state.password}
+//   underlineColorAndroid="transparent"
+//   autoCapitalize="none"
+//   secureTextEntry={true}
+//   placeholder="password"
+// />
+// <Button onPress={this.signup} textStyle={{fontSize: 18}} title = "Sign up" >
+// </Button>
+// <Button onPress={this.login} textStyle={{fontSize: 18}} title = "Login" >
+// </Button>
+// <TextInput style = {styles.input}
+//   onChangeText={(mobile) => this.setState({mobile})}
+//   value={this.state.mobile}
+//   underlineColorAndroid="transparent"
+//   keyboardType="phone-pad"
+//   placeholder="mobile"
+// />
+// <Button onPress={this.setUserMobile} textStyle={{fontSize: 18}} title = "Save" >
+// </Button>
+// <Button onPress={this.listenUserMobile} textStyle={{fontSize: 18}} title = "Load" >
+// </Button>
 
 const styles = StyleSheet.create({
   container: {

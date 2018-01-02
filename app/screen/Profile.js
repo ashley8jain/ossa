@@ -64,13 +64,19 @@ export default class FifthScreen extends Component {
             title={this.state.full_name}>
             <View>
               <Text>
-              posts: {this.state.media_count}
+              Email: {this.props.screenProps.email}
               </Text>
               <Text>
-              followers: {this.state.followed_by}
+              Username: {this.state.user_name}
               </Text>
               <Text>
-              following: {this.state.follows}
+              Posts: {this.state.media_count}
+              </Text>
+              <Text>
+              Followers: {this.state.followed_by}
+              </Text>
+              <Text>
+              Following: {this.state.follows}
               </Text>
               <Text>
               Account type: {this.state.is_business?"Business":"Normal"}

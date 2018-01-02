@@ -26,7 +26,7 @@ export default class App extends Component {
 
 	componentDidMount() {
 		var arr = []
-		var foo=[]
+		var foo = []
 
 	  fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
 	  .then((response) => response.json())
@@ -83,12 +83,15 @@ export default class App extends Component {
 
           //audience_city
           mapp = result.data[2].values[0].value;
-          var cities_data = [];
+          var categories = [];
+          var datas = [];
           console.log(mapp);
           Object.keys(mapp).forEach(function(key) {
-            cities_data.push([key,mapp[key]]);
+            categories.push(key);
+            datas.push(mapp[key]);
           })
-          this.setState({cities_dist: cities_data})
+          // this.setState({cities_dist: {data:datas,category:categories}},()=>{console.log(this.state.cities_dist.category)});
+          this.setState({cities_cat:categories,cities_data:datas})
         }
       }
 
@@ -148,7 +151,7 @@ export default class App extends Component {
   		},
   		yAxis: {
   			title: {
-  				text: 'Number'
+  				text: 'No. of likes'
   			},
   			plotLines: [{
   				value: 0,
@@ -177,7 +180,7 @@ export default class App extends Component {
   		},
   		yAxis: {
   			title: {
-  				text: 'Number'
+  				text: 'No. of comments'
   			},
   			plotLines: [{
   				value: 0,
@@ -267,6 +270,81 @@ export default class App extends Component {
   		}]
   	};
 
+    var cities_bar = {
+      chart: {
+        type: 'column',
+        backgroundColor: '#cdd2e9'
+      },
+      plotOptions: {
+
+        column: {
+          pointPadding: 0,
+          borderWidth: 0,
+          colorByPoint: true
+        }
+      },
+      title: {
+        text: 'City'
+      },
+      xAxis: {
+        categories : this.state.cities_cat,
+        title: {
+          text: 'city'
+        },
+        tickPixelInterval: 150
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'No.',
+          align: 'low'
+        },
+      },
+      series: [{
+        name: 'Data',
+        //on changing the data array size, make sure you make the changes in the colors array for it.
+        data: this.state.cities_data
+      }]
+    }
+
+    // var hue_bar_chart_2 = {
+    //   chart: {
+    //     type: 'column',
+    //     backgroundColor: '#cdd2e9'
+    //   },
+    //   plotOptions: {
+    //     series:{
+    //       pointWidth: 40
+    //     },
+    //     column: {
+    //       pointPadding: 0,
+    //       borderWidth: 0,
+    //       colorByPoint: true
+    //     }
+    //   },
+    //   title: {
+    //     text: 'Historic World Population by Region'
+    //   },
+    //   xAxis: {
+    //     categories : ['Category 1','Category 2','Category 3','Category 4','Category 5','Category 6','Category 7'],
+    //     title: {
+    //       text: 'x AXIS'
+    //     }
+    //   },
+    //   yAxis: {
+    //     min: 0,
+    //     title: {
+    //       text: 'Y axis',
+    //       align: 'low'
+    //     },
+    //   },
+    //   series: [{
+    //     name: 'Data',
+    //     //on changing the data array size, make sure you make the changes in the colors array for it.
+    //     data: this.state.gender_age_dist
+    //   }]
+    // }
+
 
   	const spline_chart_looks = {
   		global: {
@@ -325,6 +403,7 @@ export default class App extends Component {
           <Text style = {styles.Text}>Business account</Text>
           <ChartView style={{height:300}} config={gender_age_pie}></ChartView>
           <ChartView style={{height:300}} config={country_pie}></ChartView>
+          <ChartView style={{height:600}} config={cities_bar}></ChartView>
     		</ScrollView>
   	 </View>
     );
