@@ -35,7 +35,7 @@ class App extends Component {
     this.pressView = this.pressView.bind(this);
     this.pickCamera = this.pickCamera.bind(this);
     this.pickGallery = this.pickGallery.bind(this);
-    
+
   }
 
 
@@ -261,6 +261,36 @@ class OpenImage extends Component{
     componentWillMount(){
       process.nextTick = setImmediate;
 
+
+      var app = new Clarifai.App({
+         apiKey: 'b13eedefd5ee4207b1aab989b21930b4'
+       });
+
+       app.models.predict(Clarifai.GENERAL_MODEL, this.props.navigation.state.params.data.images.standard_resolution.url)
+       .then(response =>  {
+           //console.log(JSON.stringify(response.outputs[0].data.concepts, null, 2));
+           this.setState({
+             tags: response.outputs[0].data.concepts
+           });
+
+           console.log(this.state.tags);
+
+           var c_tags = "";
+           this.state.tags.map((item, index) =>
+           (
+               c_tags=c_tags+"#"+item.name.toLowerCase().replace(' ','_')+" "
+           ))
+           console.log(c_tags);
+           this.setState({
+             text: c_tags
+           })
+         },
+         function(err) {
+           console.error(err);
+           console.log("ERROR ERROR ERROR")
+           }
+         );
+
     }
 
     render(){
@@ -325,7 +355,7 @@ class OpenImage extends Component{
 
 class Groups extends React.Component {
   static navigationOptions = {
-    tabBarLabel: 'Group',
+    tabBarLabel: 'AI',
   };
   render() {
     return (
