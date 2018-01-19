@@ -259,8 +259,8 @@ class OpenImage extends Component{
     }
 
     componentWillMount(){
-      process.nextTick = setImmediate;
 
+      process.nextTick = setImmediate;
 
       var app = new Clarifai.App({
          apiKey: 'b13eedefd5ee4207b1aab989b21930b4'
@@ -291,6 +291,7 @@ class OpenImage extends Component{
            }
          );
 
+
     }
 
     render(){
@@ -303,6 +304,7 @@ class OpenImage extends Component{
       }
       return(
         <View style = {{flex:1, backgroundColor: '#F9F9F9'}} >
+        <ScrollView>
           <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center', alignItems: 'center'}} >
             <Text style = {{padding: 10, fontSize: 19, fontWeight: 'bold'}} >
               CAPTION
@@ -337,7 +339,7 @@ class OpenImage extends Component{
               HASHTAGS
             </Text>
           </View>
-          <View style = {{height: '22%', backgroundColor: 'white', }} >
+          <View style = {{height: '50%', backgroundColor: 'white', }} >
             <HashTags/>
           </View>
           <View style = {{height: '5%', backgroundColor: '#F9F9F9', }} />
@@ -347,6 +349,7 @@ class OpenImage extends Component{
               <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
               <Switch style = {{marginRight: 10}} value = {true} />
           </View>
+          </ScrollView>
         </View>
       )
     }
@@ -370,13 +373,45 @@ class Groups extends React.Component {
 
 class Recent extends React.Component {
   static navigationOptions = {
-    tabBarLabel: 'Recent',
+    tabBarLabel: 'Related',
   };
+
+  constructor(props) {
+    super(props);
+    // Alert.alert(this.props.screenProps);
+    this.state = {
+      text: '',
+      tags: '#asd #fvb'
+    };
+  }
+
   render() {
     return (
-      <View style = {{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <View style = {{flex: 1}}>
+        <TextInput style = {styles.input2}
+          onChangeText={(text) => this.setState({text})}
+          value={this.state.text}
+          underlineColorAndroid="transparent"
+        />
+
+        <Button
+          onPress={() => {
+            fetch('https://d212rkvo8t62el.cloudfront.net/tag/'+this.state.text)
+            .then((response) => response.json())
+            .then((responseData) => {
+              // console.log("related: "+JSON.stringify(responseData));
+              var tags='';
+              for(var i=0;i<responseData.results.length;i++){
+                console.log(responseData.results[i].tag);
+                tags=tags+'#'+responseData.results[i].tag+' ';
+              }
+              this.setState({tags:tags});
+            });
+          }}
+          title="SEARCH" />
+
         <Text style = {{fontSize: 18}} >
-          Fetch recent Hashtags
+          {this.state.tags}
         </Text>
       </View>
     );
@@ -539,6 +574,12 @@ const styles = StyleSheet.create ({
   listView: {
     paddingTop: 20,
     backgroundColor: '#F5FCFF',
+  },
+  input2: {
+      margin: 15,
+      height: 40,
+      width: 300,
+      borderWidth: 1,
   },
 
 
