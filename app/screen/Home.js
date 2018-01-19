@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Platform, Text, Image, View, StyleSheet, ScrollView, Button, ToastAndroid
          ,TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback,
-        ListView, TextInput, NativeModules, Dimensions, Alert, Switch } from 'react-native';
+        ListView, TextInput, NativeModules, Dimensions, Alert, Switch, AppState } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { TabNavigator } from 'react-navigation';
 import Clarifai from 'clarifai';
@@ -9,6 +9,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 import ImagePicker from 'react-native-image-crop-picker';
 import {GraphRequestManager,GraphRequest} from 'react-native-fbsdk'
 import { Dialog } from 'react-native-simple-dialogs';
+import PushNotification from 'react-native-push-notification';
+
 
 
 class App extends Component {
@@ -41,6 +43,29 @@ class App extends Component {
 
   componentDidMount() {
     this.fetchData();
+    AppState.addEventListener('change',this.handleAppStateChange);
+    PushNotification.configure({
+      onNotification: function(notification) {
+        console.log( 'NOTIFICATION:', notification );
+      },
+    });
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change',this.handleAppStateChange);
+  }
+
+  handleAppStateChange(appState){
+    if (appState === 'background') {
+      console.log(Date.now());
+      let date = new Date(Date.now() + (5 * 1000));
+
+      PushNotification.localNotificationSchedule({
+        message: "My Notification Message",
+        date,
+      });
+      console.log('app is in backgound');
+    }
   }
 
   //loads media from endpoint API
@@ -304,7 +329,6 @@ class OpenImage extends Component{
       }
       return(
         <View style = {{flex:1, backgroundColor: '#F9F9F9'}} >
-        <ScrollView>
           <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center', alignItems: 'center'}} >
             <Text style = {{padding: 10, fontSize: 19, fontWeight: 'bold'}} >
               CAPTION
@@ -339,7 +363,7 @@ class OpenImage extends Component{
               HASHTAGS
             </Text>
           </View>
-          <View style = {{height: '50%', backgroundColor: 'white', }} >
+          <View style = {{height: '22%', backgroundColor: 'white', }} >
             <HashTags/>
           </View>
           <View style = {{height: '5%', backgroundColor: '#F9F9F9', }} />
@@ -349,7 +373,6 @@ class OpenImage extends Component{
               <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
               <Switch style = {{marginRight: 10}} value = {true} />
           </View>
-          </ScrollView>
         </View>
       )
     }
@@ -388,6 +411,7 @@ class Recent extends React.Component {
   render() {
     return (
       <View style = {{flex: 1}}>
+        <ScrollView>
         <TextInput style = {styles.input2}
           onChangeText={(text) => this.setState({text})}
           value={this.state.text}
@@ -413,6 +437,7 @@ class Recent extends React.Component {
         <Text style = {{fontSize: 18}} >
           {this.state.tags}
         </Text>
+        </ScrollView>
       </View>
     );
   }
