@@ -12,6 +12,8 @@ A Mobile Application to be implemented on both platforms(ios+Android) targeted a
 * Grid View/Feed Planner
 * Image to hashTag generator using ML
 
+[More Feature](https://docs.google.com/document/d/1tA-Ore8k4HzAYrcp2WwivmJzrJCrGNBFkdEplZHMPA8/edit?usp=sharing)
+
 ### Steps to run the app
 
 Clone the repository, then
