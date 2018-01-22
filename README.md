@@ -1,5 +1,17 @@
 ## OSSA
 
+> What is it?
+
+A Mobile Application to be implemented on both platforms(ios+Android) targeted at social-influencers.
+
+> Features and Actions(General & special)
+
+* SIgn-up, Login with Instagram and facebook
+* Fetch Instagram API Data and facebook graph API
+* Database integration
+* Grid View/Feed Planner
+* Image to hashTag generator using ML
+
 ### Steps to run the app
 
 Clone the repository, then
