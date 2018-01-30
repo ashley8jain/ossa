@@ -1,22 +1,22 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Keyboard } from 'react-native'
 import InstagramLogin from 'react-native-instagram-login';
-import * as firebase from "firebase";
+import firebase from './firebase';
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
 import { Button,Card,Avatar } from 'react-native-elements'
 
 import TabNav from './tabNav'
 
 
-const config = {
-    apiKey: "AIzaSyCjhEnquAoo0QhRlZ0RGXrrC0qgLCVIj5g",
-    authDomain: "intelmark-9519d.firebaseapp.com",
-    databaseURL: "https://intelmark-9519d.firebaseio.com",
-    projectId: "intelmark-9519d",
-    storageBucket: "intelmark-9519d.appspot.com",
-    messagingSenderId: "423067770690"
-  };
-firebase.initializeApp(config);
+// const config = {
+//     apiKey: "AIzaSyCjhEnquAoo0QhRlZ0RGXrrC0qgLCVIj5g",
+//     authDomain: "intelmark-9519d.firebaseapp.com",
+//     databaseURL: "https://intelmark-9519d.firebaseio.com",
+//     projectId: "intelmark-9519d",
+//     storageBucket: "intelmark-9519d.appspot.com",
+//     messagingSenderId: "423067770690"
+//   };
+// firebase.initializeApp(config);
 
 
 class MyApp extends Component{
@@ -174,7 +174,8 @@ class MyApp extends Component{
             onLoginFinished={
               (error, result) => {
                 if (error) {
-                  alert("login has error: " + result.error);
+                  alert("login has error: " + JSON.stringify(error));
+                  alert("login has error: " + JSON.stringify(result.error));
                 } else if (result.isCancelled) {
                   alert("login is cancelled.");
                 } else {

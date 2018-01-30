@@ -10,6 +10,46 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {GraphRequestManager,GraphRequest} from 'react-native-fbsdk'
 import { Dialog } from 'react-native-simple-dialogs';
 import PushNotification from 'react-native-push-notification';
+import CustomInstagramShare from 'react-native-instagram-share-android';
+import firebase from '../firebase';
+import RNFetchBlob from 'react-native-fetch-blob'
+
+const storage = firebase.storage()
+
+// Prepare Blob support
+// const Blob = RNFetchBlob.polyfill.Blob
+// const fs = RNFetchBlob.fs
+// window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
+// window.Blob = RNFetchBlob.polyfill.Blob
+//
+// const uploadImage = (uri, mime = 'application/octet-stream') => {
+//   return new Promise((resolve, reject) => {
+//     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+//     const sessionId = new Date().getTime()
+//     let uploadBlob = null
+//     const imageRef = storage.ref('images').child(`${sessionId}`)
+//
+//     fs.readFile(uploadUri, 'base64')
+//       .then((data) => {
+//         return Blob.build(data, { type: `${mime};BASE64` })
+//       })
+//       .then((blob) => {
+//         uploadBlob = blob
+//         return imageRef.put(blob, { contentType: mime })
+//       })
+//       .then(() => {
+//         uploadBlob.close()
+//         return imageRef.getDownloadURL()
+//       })
+//       .then((url) => {
+//         resolve(url)
+//       })
+//       .catch((error) => {
+//         reject(error)
+//     })
+//   })
+// }
+
 
 
 
@@ -176,15 +216,16 @@ class App extends Component {
         height: 300,
         cropping: true,
         cropperCircleOverlay: false,
-        compressImageMaxWidth: 640,
-        compressImageMaxHeight: 480,
-        compressImageQuality: 0.5,
-        compressVideoPreset: 'MediumQuality',
         includeExif: true,
       }).then(image => {
+        console.log("image JSON: "+JSON.stringify(image));
         var data = {'images':{
           'thumbnail': {
-            'url': image.path}
+            'url': image.path
+          },
+          'standard_resolution': {
+            'url': image.path
+          }
         }}
 
         this.setState({
@@ -193,6 +234,10 @@ class App extends Component {
         });
 
         console.log(this.state.rawData);
+        console.log("image path: "+image.path);
+        CustomInstagramShare.shareWithInstagram(image.path.includes("file://")?image.path.replace('file://',''):image.path,function(result){
+          alert(result);
+        });
 
       }).catch(e => {
         console.log(e);
@@ -217,7 +262,11 @@ class App extends Component {
       }).then(image => {
         var data = {'images':{
           'thumbnail': {
-            'url': image.path}
+            'url': image.path
+          },
+          'standard_resolution': {
+            'url': image.path
+          }
         }}
 
         this.setState({
@@ -226,6 +275,16 @@ class App extends Component {
         });
 
         console.log(this.state.rawData);
+        console.log("image path: "+image.path);
+        console.log("image: "+JSON.stringify(image));
+        // uploadImage(image.path)
+        // .then(url => console.log("uploadUrl: "+url))
+        // .catch(error => console.log(error));
+
+
+        CustomInstagramShare.shareWithInstagram(image.path.includes("file://")?image.path.replace('file://',''):image.path,function(result){
+          alert(result);
+        });
 
       }).catch(e => {
         console.log(e);
