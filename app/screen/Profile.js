@@ -1,7 +1,18 @@
 import React,{ Component } from 'react'
-import {Text,View,StyleSheet} from 'react-native'
+import {ScrollView,Text,View,StyleSheet} from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
-import { Button,Card,Avatar } from 'react-native-elements'
+import { Button,Card } from 'react-native-elements'
+import {
+  RkText,
+  RkTextInput,
+  RkAvoidKeyboard,
+  RkTheme,
+  RkStyleSheet
+} from 'react-native-ui-kitten';
+import {SocialSetting} from '../components';
+import {FontAwesome} from '../assets/icons';
+import {Avatar} from '../components';
+// import {GradientButton} from '../components';
 
 
 export default class FifthScreen extends Component {
@@ -28,7 +39,18 @@ export default class FifthScreen extends Component {
         followed_by: response.data.counts.followed_by,
         media_count: response.data.counts.media,
         is_business: response.data.is_business,
-        loaded: true
+        loaded: true,
+        firstName: 'Firebase',
+        lastName: 'Firebase',
+        email: 'Firebase@google.com',
+        country: 'India',
+        phone: '91xxx',
+        password: '',
+        newPassword: '',
+        confirmPassword: '',
+        twitter: true,
+        google: false,
+        facebook: false
       });
 
     });
@@ -51,45 +73,120 @@ export default class FifthScreen extends Component {
     }
     else{
       return(
-        <View style={styles.container}>
-          <Avatar
-            xlarge
-            rounded
-            source={{uri: this.state.profile_img}}
-            onPress={() => console.log("Works!")}
-            activeOpacity={0.7}
-          />
-          <Card
-            containerStyle={{marginBottom: 10}}
-            title={this.state.full_name}>
-            <View>
-              <Text>
-              Email: {this.props.screenProps.email}
-              </Text>
-              <Text>
-              Username: {this.state.user_name}
-              </Text>
-              <Text>
-              Posts: {this.state.media_count}
-              </Text>
-              <Text>
-              Followers: {this.state.followed_by}
-              </Text>
-              <Text>
-              Following: {this.state.follows}
-              </Text>
-              <Text>
-              Account type: {this.state.is_business?"Business":"Normal"}
-              </Text>
+        <ScrollView style={styles.root}>
+          <RkAvoidKeyboard>
+            <View style={styles.header}>
+              <Avatar img={{uri: this.state.profile_img}} rkType='big'/>
             </View>
 
-          </Card>
-          <Button
-            raised
-            onPress={() => this.props.screenProps.logoutFunc()}
-            title="LOGOUT"
-            backgroundColor='#397af8' />
-        </View>
+            <View style={styles.section}>
+              <View style={[styles.row, styles.heading]}>
+                <RkText rkType='header6 primary'>INFO</RkText>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='First Name'
+                             value={this.state.firstName}
+                             rkType='right clear'
+                             onChangeText={(text) => this.setState({firstName: text})}/>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='Last Name'
+                             value={this.state.lastName}
+                             onChangeText={(text) => this.setState({lastName: text})}
+                             rkType='right clear'/>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='Email'
+                             value={this.state.email}
+                             onChangeText={(text) => this.setState({email: text})}
+                             rkType='right clear'/>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='Country'
+                             value={this.state.country}
+                             onChangeText={(text) => this.setState({country: text})}
+                             rkType='right clear'/>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='Phone'
+                             value={this.state.phone}
+                             onChangeText={(text) => this.setState({phone: text})}
+                             rkType='right clear'/>
+              </View>
+            </View>
+            <View style={styles.section}>
+              <View style={[styles.row, styles.heading]}>
+                <RkText rkType='primary header6'>CHANGE PASSWORD</RkText>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='Old Password'
+                             value={this.state.password}
+                             rkType='right clear'
+                             secureTextEntry={true}
+                             onChangeText={(text) => this.setState({password: text})}/>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='New Password'
+                             value={this.state.newPassword}
+                             rkType='right clear'
+                             secureTextEntry={true}
+                             onChangeText={(text) => this.setState({newPassword: text})}/>
+              </View>
+              <View style={styles.row}>
+                <RkTextInput label='Confirm Password'
+                             value={this.state.confirmPassword}
+                             rkType='right clear'
+                             secureTextEntry={true}
+                             onChangeText={(text) => this.setState({confirmPassword: text})}/>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <View style={[styles.row, styles.heading]}>
+                <RkText rkType='primary header6'>CONNECT YOUR ACCOUNT</RkText>
+              </View>
+              <View style={styles.row}>
+                <SocialSetting name='Twitter' icon={FontAwesome.twitter} tintColor={RkTheme.current.colors.twitter}/>
+              </View>
+              <View style={styles.row}>
+                <SocialSetting name='Google' icon={FontAwesome.google} tintColor={RkTheme.current.colors.google}/>
+              </View>
+              <View style={styles.row}>
+                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook}/>
+              </View>
+            </View>
+            <Card
+              containerStyle={{marginBottom: 10}}
+              title={this.state.full_name}>
+              <View>
+                <Text>
+                Email: {this.props.screenProps.email}
+                </Text>
+                <Text>
+                Username: {this.state.user_name}
+                </Text>
+                <Text>
+                Posts: {this.state.media_count}
+                </Text>
+                <Text>
+                Followers: {this.state.followed_by}
+                </Text>
+                <Text>
+                Following: {this.state.follows}
+                </Text>
+                <Text>
+                Account type: {this.state.is_business?"Business":"Normal"}
+                </Text>
+              </View>
+
+            </Card>
+            <Button
+              raised
+              onPress={() => this.props.screenProps.logoutFunc()}
+              title="LOGOUT"
+              backgroundColor='#397af8' />
+            </RkAvoidKeyboard>
+        </ScrollView>
       );
     }
 
@@ -98,11 +195,28 @@ export default class FifthScreen extends Component {
   }
 }
 
-const styles = StyleSheet.create ({
+let styles = RkStyleSheet.create(theme => ({
+  section: {
+    marginVertical: 25
+  },
+  heading: {
+    paddingBottom: 12.5
+  },
+  header: {
+    backgroundColor: theme.colors.screen.neutral,
+    paddingVertical: 25
+  },
+  row: {
+    flexDirection: 'row',
+    paddingHorizontal: 17.5,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: theme.colors.border.base,
+    alignItems: 'center'
+  },
   container: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
   }
-});
+}));

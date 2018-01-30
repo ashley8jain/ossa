@@ -4,9 +4,12 @@ import InstagramLogin from 'react-native-instagram-login';
 import firebase from './firebase';
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
 import { Button,Card,Avatar } from 'react-native-elements'
+import {bootstrap} from './config/bootstrap';
+
 
 import TabNav from './tabNav'
 
+bootstrap();
 
 // const config = {
 //     apiKey: "AIzaSyCjhEnquAoo0QhRlZ0RGXrrC0qgLCVIj5g",
@@ -32,6 +35,18 @@ class MyApp extends Component{
     this.setUserMobile = this.setUserMobile.bind(this);
     this.listenUserMobile = this.listenUserMobile.bind(this);
   }
+
+  // _loadAssets = async() => {
+  //   await Font.loadAsync({
+  //     'fontawesome': require('./assets/fonts/fontawesome.ttf'),
+  //     'icomoon': require('./assets/fonts/icomoon.ttf'),
+  //     'Righteous-Regular': require('./assets/fonts/Righteous-Regular.ttf'),
+  //     'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
+  //     'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
+  //     'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
+  //     'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
+  //   });
+  // };
 
   componentDidMount() {
     AsyncStorage.getItem('instaToken').then((value) => {
