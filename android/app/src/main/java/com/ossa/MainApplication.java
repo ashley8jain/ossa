@@ -3,7 +3,6 @@ package com.ossa;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.RNFetchBlob.RNFetchBlobPackage;
 import bhumi.customInstagramShare.CustomInstagramSharePackage;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
@@ -39,7 +38,6 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
-            new RNFetchBlobPackage(),
             new CustomInstagramSharePackage(MainActivity.activity),
             new ReactNativePushNotificationPackage(),
                     new PickerPackage(),

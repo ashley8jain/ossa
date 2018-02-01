@@ -1,5 +1,4 @@
 import React from 'react';
-import {LinearGradient} from 'expo';
 import {
   RkButton,
   RkText,
@@ -37,12 +36,7 @@ export class GradientButton extends RkComponent {
       <RkButton rkType='stretch'
                 style={[button, style]}
                 {...otherProps}>
-        <LinearGradient colors={colors}
-                        start={{x: 0.0, y: 0.5}}
-                        end={{x: 1, y: 0.5}}
-                        style={[gradient]}>
-          {this.renderContent(textStyle)}
-        </LinearGradient>
+
       </RkButton>
     )
   }

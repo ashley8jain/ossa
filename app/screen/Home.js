@@ -12,7 +12,7 @@ import { Dialog } from 'react-native-simple-dialogs';
 import PushNotification from 'react-native-push-notification';
 import CustomInstagramShare from 'react-native-instagram-share-android';
 import firebase from '../firebase';
-import RNFetchBlob from 'react-native-fetch-blob'
+// import RNFetchBlob from 'react-native-fetch-blob'
 
 const storage = firebase.storage()
 
