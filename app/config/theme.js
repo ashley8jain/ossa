@@ -25,6 +25,7 @@ const Colors = {
   twitter: '#41abe1',
   google: '#e94335',
   facebook: '#3b5998',
+  instagram: '#e100a2',
 
   gradientBaseBegin: '#ff9147',
   gradientBaseEnd: '#ff524c',
@@ -104,6 +105,7 @@ export const KittenTheme = {
     twitter: Colors.twitter,
     google: Colors.google,
     facebook: Colors.facebook,
+    instagram: Colors.instagram,
     brand: Colors.accent,
     text: {
       base: Colors.foreground,

@@ -154,6 +154,9 @@ export default class FifthScreen extends Component {
               <View style={styles.row}>
                 <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook}/>
               </View>
+              <View style={styles.row}>
+                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram}/>
+              </View>
             </View>
             <Card
               containerStyle={{marginBottom: 10}}
