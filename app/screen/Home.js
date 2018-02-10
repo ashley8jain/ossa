@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, Text, Image, View, StyleSheet, ScrollView, Button, ToastAndroid
+import { Platform, Text, Image, View, StyleSheet, ScrollView, ToastAndroid
          ,TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback,
         ListView, TextInput, NativeModules, Dimensions, Alert, Switch, AppState } from 'react-native';
 import { StackNavigator } from 'react-navigation';
@@ -12,6 +12,8 @@ import { Dialog } from 'react-native-simple-dialogs';
 import PushNotification from 'react-native-push-notification';
 import CustomInstagramShare from 'react-native-instagram-share-android';
 import firebase from '../firebase';
+import { Button,List, ListItem , Badge} from 'react-native-elements'
+
 // import RNFetchBlob from 'react-native-fetch-blob'
 
 const storage = firebase.storage()
@@ -186,12 +188,12 @@ class App extends Component {
           title="Select Source"
           onTouchOutside={() => this.setState({dialogVisible: false})} >
           <View>
-            <Button onPress={() => this.pickCamera()} title="Camera" />
-            <Button onPress={() => this.pickGallery()} title="Gallery" />
+            <Button onPress={() => this.pickCamera()} title="Camera" backgroundColor='#397af8'/>
+            <Button onPress={() => this.pickGallery()} title="Gallery" backgroundColor='#397af8'/>
           </View>
       </Dialog>
         <View style={{position: 'absolute',left: 0,right: 0,bottom: 0,width:'100%'}}>
-          <Button onPress={() => this.popup_dialog()} title="Upload Image" color="#841584"/>
+          <Button onPress={() => this.popup_dialog()} title="Upload Image" color="#841584" backgroundColor='#397af8'/>
         </View>
       </View>
     );
@@ -336,10 +338,17 @@ class OpenImage extends Component{
       super();
       this.state = {
         tags: [],
-        text: "#travel #joyoflife #intelmark #fun",
+        text: "#intelmark",
+        text2: "",
         height: 0
       };
+      this.addHash = this.addHash.bind(this);
+    }
 
+    addHash(hashTag){
+      var textt = this.state.text;
+      textt=textt+" "+hashTag;
+      this.setState({text:textt});
     }
 
     componentWillMount(){
@@ -347,7 +356,7 @@ class OpenImage extends Component{
       process.nextTick = setImmediate;
 
       var app = new Clarifai.App({
-         apiKey: 'b13eedefd5ee4207b1aab989b21930b4'
+         apiKey: 'd2baff91fd7e4a6d9bb4ffb461e1faeb'
        });
 
        app.models.predict(Clarifai.GENERAL_MODEL, this.props.navigation.state.params.data.images.standard_resolution.url)
@@ -366,7 +375,7 @@ class OpenImage extends Component{
            ))
            console.log(c_tags);
            this.setState({
-             text: c_tags
+             text2: c_tags
            })
          },
          function(err) {
@@ -423,7 +432,14 @@ class OpenImage extends Component{
             </Text>
           </View>
           <View style = {{height: '22%', backgroundColor: 'white', }} >
-            <HashTags/>
+            <HashTags
+            screenProps={
+              {
+                text2: this.state.text2,
+                addHash: this.addHash
+              }
+            }
+            />
           </View>
           <View style = {{height: '5%', backgroundColor: '#F9F9F9', }} />
 
@@ -438,22 +454,37 @@ class OpenImage extends Component{
 
 }
 
-class Groups extends React.Component {
+class ImgHash extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'AI',
   };
+
+  constructor(props) {
+    super(props);
+    // Alert.alert(this.props.screenProps);
+    this.state = {
+      tags: '#'
+    };
+  }
+
   render() {
     return (
       <View style = {{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-        <Text>
-          Group
-        </Text>
+        <ScrollView>
+          <List containerStyle={{marginBottom: 20}}>
+            {
+              (this.props.screenProps.text2).split(" ").map((l, i) => (
+                <Badge key={i} onPress={() => this.props.screenProps.addHash(l)} value={l} />
+              ))
+            }
+          </List>
+        </ScrollView>
       </View>
     );
   }
 }
 
-class Recent extends React.Component {
+class Related extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'Related',
   };
@@ -463,7 +494,7 @@ class Recent extends React.Component {
     // Alert.alert(this.props.screenProps);
     this.state = {
       text: '',
-      tags: '#asd #fvb'
+      tags: ''
     };
   }
 
@@ -492,10 +523,13 @@ class Recent extends React.Component {
             });
           }}
           title="SEARCH" />
-
-        <Text style = {{fontSize: 18}} >
-          {this.state.tags}
-        </Text>
+        <List containerStyle={{marginBottom: 20}}>
+          {
+            (this.state.tags).split(" ").map((l, i) => (
+              <Badge key={i} onPress={() => this.props.screenProps.addHash(l)} value={l} containerStyle={{  }}/>
+            ))
+          }
+        </List>
         </ScrollView>
       </View>
     );
@@ -518,11 +552,11 @@ class MostUsed extends React.Component {
 }
 
 const HashTags = TabNavigator({
-  Home: {
-    screen: Groups,
+  ImgHash: {
+    screen: ImgHash,
   },
-  Notifications: {
-    screen: Recent,
+  Related: {
+    screen: Related,
   },
   MostUsed: {
     screen: MostUsed,

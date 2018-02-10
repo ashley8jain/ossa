@@ -97,7 +97,7 @@ export default class FifthScreen extends Component {
               </View>
               <View style={styles.row}>
                 <RkTextInput label='Email'
-                             value={this.state.email}
+                             value={this.props.screenProps.email}
                              onChangeText={(text) => this.setState({email: text})}
                              rkType='right clear'/>
               </View>
@@ -113,6 +113,11 @@ export default class FifthScreen extends Component {
                              onChangeText={(text) => this.setState({phone: text})}
                              rkType='right clear'/>
               </View>
+              <Button
+                raised
+                onPress={() => console.log("save")}
+                title="SAVE"
+                backgroundColor= {RkTheme.current.colors.primary}/>
             </View>
             <View style={styles.section}>
               <View style={[styles.row, styles.heading]}>
@@ -139,6 +144,11 @@ export default class FifthScreen extends Component {
                              secureTextEntry={true}
                              onChangeText={(text) => this.setState({confirmPassword: text})}/>
               </View>
+              <Button
+                raised
+                onPress={() => console.log("password changed")}
+                title="Change"
+                backgroundColor= {RkTheme.current.colors.primary}/>
             </View>
 
             <View style={styles.section}>
@@ -152,10 +162,10 @@ export default class FifthScreen extends Component {
                 <SocialSetting name='Google' icon={FontAwesome.google} tintColor={RkTheme.current.colors.google}/>
               </View>
               <View style={styles.row}>
-                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook}/>
+                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook} selected={true}/>
               </View>
               <View style={styles.row}>
-                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram}/>
+                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram} selected={true}/>
               </View>
             </View>
             <Card
