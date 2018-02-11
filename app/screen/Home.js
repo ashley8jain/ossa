@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Platform, Text, Image, View, StyleSheet, ScrollView, ToastAndroid
          ,TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback,
-        ListView, TextInput, NativeModules, Dimensions, Alert, Switch, AppState } from 'react-native';
+        ListView, TextInput, NativeModules, Dimensions, Alert, Switch, AppState, Clipboard } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { TabNavigator } from 'react-navigation';
 import Clarifai from 'clarifai';
@@ -12,7 +12,7 @@ import { Dialog } from 'react-native-simple-dialogs';
 import PushNotification from 'react-native-push-notification';
 import CustomInstagramShare from 'react-native-instagram-share-android';
 import firebase from '../firebase';
-import { Button,List, ListItem , Badge} from 'react-native-elements'
+import { Button,List, ListItem , Badge, Avatar} from 'react-native-elements'
 
 // import RNFetchBlob from 'react-native-fetch-blob'
 
@@ -236,10 +236,10 @@ class App extends Component {
         });
 
         console.log(this.state.rawData);
-        console.log("image path: "+image.path);
-        CustomInstagramShare.shareWithInstagram(image.path.includes("file://")?image.path.replace('file://',''):image.path,function(result){
-          alert(result);
-        });
+        // console.log("image path: "+image.path);
+        // CustomInstagramShare.shareWithInstagram(image.path.includes("file://")?image.path.replace('file://',''):image.path,function(result){
+        //   alert(result);
+        // });
 
       }).catch(e => {
         console.log(e);
@@ -277,16 +277,16 @@ class App extends Component {
         });
 
         console.log(this.state.rawData);
-        console.log("image path: "+image.path);
-        console.log("image: "+JSON.stringify(image));
+        // console.log("image path: "+image.path);
+        // console.log("image: "+JSON.stringify(image));
         // uploadImage(image.path)
         // .then(url => console.log("uploadUrl: "+url))
         // .catch(error => console.log(error));
 
 
-        CustomInstagramShare.shareWithInstagram(image.path.includes("file://")?image.path.replace('file://',''):image.path,function(result){
-          alert(result);
-        });
+        // CustomInstagramShare.shareWithInstagram(image.path.includes("file://")?image.path.replace('file://',''):image.path,function(result){
+        //   alert(result);
+        // });
 
       }).catch(e => {
         console.log(e);
@@ -351,6 +351,11 @@ class OpenImage extends Component{
       this.setState({text:textt});
     }
 
+    writeToClipboard = async () => {
+      await Clipboard.setString(this.state.text);
+      alert('Copied to Clipboard!');
+    };
+
     componentWillMount(){
 
       process.nextTick = setImmediate;
@@ -397,10 +402,27 @@ class OpenImage extends Component{
       }
       return(
         <View style = {{flex:1, backgroundColor: '#F9F9F9'}} >
-          <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center', alignItems: 'center'}} >
+          <View style = {{height:'9%', backgroundColor: '#F9F9F9', justifyContent: 'center', alignItems: 'center',flexDirection: 'row'}} >
             <Text style = {{padding: 10, fontSize: 19, fontWeight: 'bold'}} >
               CAPTION
             </Text>
+            <Avatar
+              small
+              rounded
+              icon={{name: 'share'}}
+              onPress={
+                () =>
+                  { this.writeToClipboard();
+                    let ImgPath = this.props.navigation.state.params.data.images.standard_resolution.url;
+                    console.log("ImgPath: "+ImgPath);
+                    CustomInstagramShare.shareWithInstagram(ImgPath.includes("file://")?ImgPath.replace('file://',''):ImgPath,function(result){
+                      alert(result);
+                    });
+                  }
+
+              }
+              activeOpacity={0.1}
+            />
           </View>
           <View style = {styles.textCaption}>
             <Image
@@ -522,6 +544,7 @@ class Related extends React.Component {
               this.setState({tags:tags});
             });
           }}
+          backgroundColor='#397af8'
           title="SEARCH" />
         <List containerStyle={{marginBottom: 20}}>
           {
