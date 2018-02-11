@@ -24,6 +24,7 @@
     "react-native": "^0.48.4",
     "react-native-elements": "^0.18.5",
     "react-native-fbsdk": "^0.6.3",
+    "react-native-fetch-blob": "^0.10.8",
     "react-native-highcharts": "^1.0.2",
     "react-native-image-crop-picker": "^0.19.1",
     "react-native-instagram-login": "^1.0.4",
