@@ -213,7 +213,7 @@ export let bootstrap = () => {
     height: scale(62),
     width: scale(62),
     borderRadius: scale(31),
-    borderColor: theme => theme.colors.border.accent,
+    borderColor: theme => theme.colors.border.primary,
     borderWidth: 1,
     backgroundColor: theme => theme.colors.control.background
   });

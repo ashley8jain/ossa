@@ -3,7 +3,7 @@ import { Platform } from 'react-native'
 
 const Colors = {
   accent: '#ff2824',
-  primary: '#f64e59',
+  primary: '#00be80',
   success: '#3bd555',
   disabled: '#cacaca',
 
@@ -135,6 +135,7 @@ export const KittenTheme = {
     border: {
       base: Colors.border,
       accent: Colors.accent,
+      primary: Colors.primary,
       secondary: Colors.secondaryForeground,
       highlight: Colors.highlight,
     },
