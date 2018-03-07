@@ -25,35 +25,66 @@ export default class FifthScreen extends Component {
     super(props);
     // Alert.alert(this.props.screenProps);
     this.state = {
-      loaded: false,
+      loaded: true,
+      user_name: 'null',
+      profile_img: 'http://clipart-library.com/images/pc7r8XKzi.png',
+      full_name: 'null',
+      follows: 'null',
+      followed_by: 'null',
+      media_count: 'null',
+      is_business: false,
+      firstName: 'Firebase',
+      lastName: 'Firebase',
+      email: 'Firebase@google.com',
+      country: 'India',
+      phone: '91xxx',
+      password: '',
+      newPassword: '',
+      confirmPassword: '',
+      twitter: true,
+      google: false,
+      facebook: false
     };
 
-    fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
-    .then((response)=>response.json())
-    .then((response)=>{
-      this.setState({
-        user_name: response.data.username,
-        profile_img: response.data.profile_picture,
-        full_name: response.data.full_name,
-        follows: response.data.counts.follows,
-        followed_by: response.data.counts.followed_by,
-        media_count: response.data.counts.media,
-        is_business: response.data.is_business,
-        loaded: true,
-        firstName: 'Firebase',
-        lastName: 'Firebase',
-        email: 'Firebase@google.com',
-        country: 'India',
-        phone: '91xxx',
-        password: '',
-        newPassword: '',
-        confirmPassword: '',
-        twitter: true,
-        google: false,
-        facebook: false
-      });
+    this.funcc = this.funcc.bind(this);
 
-    });
+    if(this.props.screenProps.instaToken!=null){
+      fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
+      .then((response)=>response.json())
+      .then((response)=>{
+        this.setState({
+          user_name: response.data.username,
+          profile_img: response.data.profile_picture,
+          full_name: response.data.full_name,
+          follows: response.data.counts.follows,
+          followed_by: response.data.counts.followed_by,
+          media_count: response.data.counts.media,
+          is_business: response.data.is_business,
+          loaded: true,
+          firstName: 'Firebase',
+          lastName: 'Firebase',
+          email: 'Firebase@google.com',
+          country: 'India',
+          phone: '91xxx',
+          password: '',
+          newPassword: '',
+          confirmPassword: '',
+          twitter: true,
+          google: false,
+          facebook: false
+        });
+
+      });
+    }
+  }
+
+  funcc(){
+    if(this.props.screenProps.fbID!=null){
+      this.props.screenProps.logoutFunc();
+    }
+    else{
+      this.props.screenProps.loginInWithFB();
+    }
   }
 
   renderLoadingView() {
@@ -162,10 +193,12 @@ export default class FifthScreen extends Component {
                 <SocialSetting name='Google' icon={FontAwesome.google} tintColor={RkTheme.current.colors.google}/>
               </View>
               <View style={styles.row}>
-                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook} selected={true}/>
+                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook} selected={this.props.screenProps.fbID!=null}
+                  onPresss={() => this.funcc()}
+                />
               </View>
               <View style={styles.row}>
-                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram} selected={true}/>
+                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram} selected={this.props.screenProps.instaToken!=null}/>
               </View>
             </View>
             <Card

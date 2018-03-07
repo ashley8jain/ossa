@@ -15,6 +15,13 @@ export class SocialSetting extends React.Component {
     this.state = {
       selected: this.props.selected
     }
+
+    this.funcc = this.funcc.bind(this);
+  }
+
+  funcc(selected){
+    this.setState({selected});
+    this.props.onPresss();
   }
 
   render() {
@@ -27,7 +34,7 @@ export class SocialSetting extends React.Component {
           <RkText rkType='awesome large' style={[styles.icon, {color}]}>{this.props.icon}</RkText>
           <RkText rkType='small' style={{color}}>{this.props.name}</RkText>
         </View>
-        <RkSwitch value={this.state.selected} onValueChange={(selected) => this.setState({selected})}/>
+        <RkSwitch value={this.state.selected} onValueChange={(selected) => this.funcc(selected)}/>
       </View>
     )
   }

@@ -1,52 +1,50 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Keyboard } from 'react-native'
+import { Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Keyboard, Image, Dimensions } from 'react-native'
 import InstagramLogin from 'react-native-instagram-login';
 import firebase from './firebase';
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
 import { Button,Card,Avatar } from 'react-native-elements'
-import {bootstrap} from './config/bootstrap';
+import {
+  RkButton,
+  RkText,
+  RkTextInput,
+  RkAvoidKeyboard,
+  RkStyleSheet,
+  RkTheme
+} from 'react-native-ui-kitten';
+import {FontAwesome} from './assets/icons';
+// import {GradientButton} from './components/gradientButton';
+import {scale, scaleModerate, scaleVertical} from './utils/scale';
 
-
+import signup from './signup'
+import { StackNavigator } from 'react-navigation';
 import TabNav from './tabNav'
 
+import {bootstrap} from './config/bootstrap';
 bootstrap();
 
-// const config = {
-//     apiKey: "AIzaSyCjhEnquAoo0QhRlZ0RGXrrC0qgLCVIj5g",
-//     authDomain: "intelmark-9519d.firebaseapp.com",
-//     databaseURL: "https://intelmark-9519d.firebaseio.com",
-//     projectId: "intelmark-9519d",
-//     storageBucket: "intelmark-9519d.appspot.com",
-//     messagingSenderId: "423067770690"
-//   };
-// firebase.initializeApp(config);
-
-
-class MyApp extends Component{
+class LoginV extends Component{
+  static navigationOptions = {
+    header: null,
+  };
 
   constructor(props){
     super(props);
     this.state = {
-      instaToken: null
+      instaToken: null,
+      uid: null,
+      email: null,
+      password: null
     };
     this.logout = this.logout.bind(this);
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.setUserMobile = this.setUserMobile.bind(this);
     this.listenUserMobile = this.listenUserMobile.bind(this);
+    this.loginFirebase_usingFB = this.loginFirebase_usingFB.bind(this);
+    this.loginInWithFB = this.loginInWithFB.bind(this);
   }
 
-  // _loadAssets = async() => {
-  //   await Font.loadAsync({
-  //     'fontawesome': require('./assets/fonts/fontawesome.ttf'),
-  //     'icomoon': require('./assets/fonts/icomoon.ttf'),
-  //     'Righteous-Regular': require('./assets/fonts/Righteous-Regular.ttf'),
-  //     'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
-  //     'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
-  //     'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
-  //     'Roboto-Light': require('./assets/fonts/Roboto-Light.ttf'),
-  //   });
-  // };
 
   componentDidMount() {
     AsyncStorage.getItem('instaToken').then((value) => {
@@ -151,6 +149,7 @@ class MyApp extends Component{
 
   setUserMobile(){
     Keyboard.dismiss();
+    // if(this.state.instaToken!=null && this.state.fbID!=null){
     if(this.state.uid!=null){
       let userMobilePath = "/user/" + this.state.uid + "/details";
       //ref: https://firebase.google.com/docs/database/web/read-and-write?authuser=0
@@ -173,86 +172,85 @@ class MyApp extends Component{
     });
   }
 
+  loginInWithFB(){
 
-  render(){
-    if(this.state.instaToken!=null && this.state.fbID!=null){
-      return (
-        // Alert.alert(this.state.instaToken),
-        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} email={this.state.email} logoutFunc={this.logout} />
-      )
-    }
-    else{
-      return(
-        <View style={styles.container}>
-          <LoginButton
-            publishPermissions={['manage_pages']}
-            onLoginFinished={
-              (error, result) => {
-                if (error) {
-                  alert("login has error: " + JSON.stringify(error));
-                  alert("login has error: " + JSON.stringify(result.error));
-                } else if (result.isCancelled) {
-                  alert("login is cancelled.");
-                } else {
-                  console.log("Result: "+JSON.stringify(result));
-                  // permission object - https://developers.facebook.com/docs/facebook-login/permissions#reference-public_profile
-                  LoginManager.logInWithReadPermissions(["public_profile","email","instagram_basic","instagram_manage_insights"]).then(
-                    function(result) {
-                      if (result.isCancelled) {
-                        alert('Login cancelled');
+    LoginManager.logInWithPublishPermissions(['manage_pages']).then(
+
+      function(result) {
+        if (result.isCancelled) {
+          alert('Login cancelled');
+        } else {
+
+          LoginManager.logInWithReadPermissions(["public_profile","email","instagram_basic","instagram_manage_insights"]).then(
+            function(result) {
+              if (result.isCancelled) {
+                alert('Login cancelled');
+              } else {
+                AccessToken.getCurrentAccessToken().then(
+                  (data) => {
+                    console.log("Data: "+JSON.stringify(data));
+                    let accessToken = data.accessToken;
+                    console.log("fb token: "+accessToken);
+                    // Build Firebase credential with the Facebook access token.
+                    var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
+                    // alert(credential.toString());
+                    // Sign in with credential from the Google user.
+                    this.loginFirebase_usingFB(credential);
+
+                    // console.log("here1");
+                    //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
+                    const responseFunc = (error, result) => {
+                      if (error) {
+                        console.log(error)
+                        alert('Error fetching data: ' + error.toString());
                       } else {
-                        AccessToken.getCurrentAccessToken().then(
-                          (data) => {
-                            console.log("Data: "+JSON.stringify(data));
-                            let accessToken = data.accessToken;
-                            console.log("fb token: "+accessToken);
-                            // Build Firebase credential with the Facebook access token.
-                            var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
-                            // alert(credential.toString());
-                            // Sign in with credential from the Google user.
-                            this.loginFirebase_usingFB(credential);
+                        console.log("hereeee: "+JSON.stringify(result))
+                        this.setState({email:result.email,gender:result.gender});
+                        // alert(json.email);
+                        AsyncStorage.setItem("email", result.email);
+                        // console.log("here2");
+
+                        // alert('Success fetching data: ' + JSON.stringify(result));
+                      }
+                    }
+                    const infoRequest = new GraphRequest(
+                      '/me',
+                      {
+                        parameters: {
+                          fields: {
+                            string: 'email,gender,name'
+                          }
+                        }
+                      },
+                      responseFunc
+                    );
+                    // Start the graph request.
+                    new GraphRequestManager().addRequest(infoRequest).start();
+
+                    // console.log("here3");
+
+                    const responseFunc2 = (error, result) => {
+                      if (error) {
+                        console.log(error)
+                        alert('Error fetching data: ' + error.toString());
+                      } else {
+                        console.log(result);
+                        // console.log("here4");
 
 
-                            // console.log("here1");
-                            //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
+                        const responseFunc = (error, result) => {
+                          if (error) {
+                            console.log(error)
+                            alert('Error fetching data: ' + error.toString());
+                          } else {
+                            console.log(result);
+
                             const responseFunc = (error, result) => {
                               if (error) {
                                 console.log(error)
                                 alert('Error fetching data: ' + error.toString());
                               } else {
-                                console.log("hereeee: "+JSON.stringify(result))
-                                this.setState({email:result.email,gender:result.gender});
-                                // alert(json.email);
-                                AsyncStorage.setItem("email", result.email);
-                                // console.log("here2");
-
-                                // alert('Success fetching data: ' + JSON.stringify(result));
-                              }
-                            }
-                            const infoRequest = new GraphRequest(
-                              '/me',
-                              {
-                                parameters: {
-                                  fields: {
-                                    string: 'email,gender,name'
-                                  }
-                                }
-                              },
-                              responseFunc
-                            );
-                            // Start the graph request.
-                            new GraphRequestManager().addRequest(infoRequest).start();
-
-                            // console.log("here3");
-
-                            const responseFunc2 = (error, result) => {
-                              if (error) {
-                                console.log(error)
-                                alert('Error fetching data: ' + error.toString());
-                              } else {
                                 console.log(result);
-                                // console.log("here4");
-
 
                                 const responseFunc = (error, result) => {
                                   if (error) {
@@ -260,116 +258,170 @@ class MyApp extends Component{
                                     alert('Error fetching data: ' + error.toString());
                                   } else {
                                     console.log(result);
-
-                                    const responseFunc = (error, result) => {
-                                      if (error) {
-                                        console.log(error)
-                                        alert('Error fetching data: ' + error.toString());
-                                      } else {
-                                        console.log(result);
-
-                                        const responseFunc = (error, result) => {
-                                          if (error) {
-                                            console.log(error)
-                                            alert('Error fetching data: ' + error.toString());
-                                          } else {
-                                            console.log(result);
-                                            // ref:- https://developers.facebook.com/docs/instagram-api/reference/user/#insights
-                                            // ref2:- https://developers.facebook.com/docs/instagram-api/reference/media/#metadata
-                                            // media and insight datas
-                                          }
-                                        }
-                                        this.setState({fbID:result.id,instaToken: null});
-                                        AsyncStorage.setItem("fbID", result.id);
-                                        let urll = '/'+result.id;
-                                        const infoRequest = new GraphRequest(
-                                          urll,
-                                          {
-                                            parameters: {
-                                              fields: {
-                                                string: 'media{media_url,media_type},media_count'
-                                              }
-                                            }
-                                          },
-                                          responseFunc
-                                        );
-                                        // Start the graph request.
-                                        new GraphRequestManager().addRequest(infoRequest).start()
-                                      }
-                                    }
-                                    console.log("hereeee: "+JSON.stringify(result));
-                                    let urll = '/'+result.instagram_business_account.id;
-                                    const infoRequest = new GraphRequest(
-                                      urll,
-                                      {
-                                        parameters: {
-                                          fields: {
-                                            string: 'username,name'
-                                          }
-                                        }
-                                      },
-                                      responseFunc
-                                    );
-                                    // Start the graph request.
-                                    new GraphRequestManager().addRequest(infoRequest).start()
+                                    // ref:- https://developers.facebook.com/docs/instagram-api/reference/user/#insights
+                                    // ref2:- https://developers.facebook.com/docs/instagram-api/reference/media/#metadata
+                                    // media and insight datas
                                   }
                                 }
-
-                                let urll = '/'+result.data[0].id;
+                                this.setState({fbID:result.id});
+                                AsyncStorage.setItem("fbID", result.id);
+                                let urll = '/'+result.id;
                                 const infoRequest = new GraphRequest(
                                   urll,
                                   {
                                     parameters: {
                                       fields: {
-                                        string: 'instagram_business_account,name'
+                                        string: 'media{media_url,media_type},media_count'
                                       }
                                     }
                                   },
                                   responseFunc
                                 );
                                 // Start the graph request.
-                                new GraphRequestManager().addRequest(infoRequest).start();
-
+                                new GraphRequestManager().addRequest(infoRequest).start()
                               }
                             }
-                            const infoRequest2 = new GraphRequest(
-                              '/me/accounts',
-                              null,
-                              responseFunc2
+                            console.log("hereeee: "+JSON.stringify(result));
+                            let urll = '/'+result.instagram_business_account.id;
+                            const infoRequest = new GraphRequest(
+                              urll,
+                              {
+                                parameters: {
+                                  fields: {
+                                    string: 'username,name'
+                                  }
+                                }
+                              },
+                              responseFunc
                             );
                             // Start the graph request.
-                            new GraphRequestManager().addRequest(infoRequest2).start();
-                            // console.log("here5");
+                            new GraphRequestManager().addRequest(infoRequest).start()
+                          }
+                        }
 
-                          })
+                        let urll = '/'+result.data[0].id;
+                        const infoRequest = new GraphRequest(
+                          urll,
+                          {
+                            parameters: {
+                              fields: {
+                                string: 'instagram_business_account,name'
+                              }
+                            }
+                          },
+                          responseFunc
+                        );
+                        // Start the graph request.
+                        new GraphRequestManager().addRequest(infoRequest).start();
+
                       }
-                    }.bind(this),
-                    function(error) {
-                      alert('Login fail with error: ' + error);
                     }
+                    const infoRequest2 = new GraphRequest(
+                      '/me/accounts',
+                      null,
+                      responseFunc2
+                    );
+                    // Start the graph request.
+                    new GraphRequestManager().addRequest(infoRequest2).start();
+                    // console.log("here5");
 
-                  );
 
-                }
+                  });
+
+
+
               }
-            }
-            onLogoutFinished={() => alert("logout.")}
-          />
-          <View style={{margin: 10}}>
+            }.bind(this));
+
+        }
+      }.bind(this)
+
+    );
+
+
+  }
+
+  _renderImage() {
+    let contentHeight = scaleModerate(375, 1);
+    let height = Dimensions.get('window').height - contentHeight;
+    let width = Dimensions.get('window').width;
+
+    image = (<Image style={[styles.image, {height, width}]}
+                    source={require('./assets/images/backgroundLoginV1.png')}/>);
+
+    return image;
+  }
+
+
+  render(){
+    if(this.state.uid!=null){
+      return (
+        // Alert.alert(this.state.instaToken),
+        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} email={this.state.email} logoutFunc={this.logout} loginInWithFB={this.loginInWithFB} />
+      )
+    }
+    else{
+      let image = this._renderImage();
+
+      return(
+        <RkAvoidKeyboard
+          onStartShouldSetResponder={ (e) => true}
+          onResponderRelease={ (e) => Keyboard.dismiss()}
+          style={styles.screen}>
+          {image}
+          <View style={styles.container}>
+            <View style={styles.buttons}>
+              <RkButton style={styles.button} rkType='social'>
+                <RkText rkType='awesome hero primary'>{FontAwesome.twitter}</RkText>
+              </RkButton>
+              <RkButton style={styles.button} rkType='social'>
+                <RkText rkType='awesome hero primary'>{FontAwesome.google}</RkText>
+              </RkButton>
+              <RkButton style={styles.button} rkType='social' onPress={() => this.loginInWithFB()}>
+                <RkText rkType='awesome hero primary'>{FontAwesome.facebook}</RkText>
+              </RkButton>
+            </View>
+            <RkTextInput placeholder='Email'
+                         value={this.state.email}
+                         onChangeText={(text) => this.setState({email: text})}
+                         rkType='rounded'/>
+            <RkTextInput placeholder='Password'
+                         value={this.state.password}
+                         onChangeText={(text) => this.setState({password: text})}
+                         rkType='rounded'
+                         secureTextEntry={true}/>
             <Button
               raised
-              title="Login with Instagram"
-              onPress={()=> this.refs.instagramLogin.show()}
-              backgroundColor='#E100A2'/>
+              onPress={() => this.login()}
+              title="LOGIN"
+              backgroundColor= {RkTheme.current.colors.primary}/>
+
+
+            <View style={{margin: 10}}>
+              <Button
+                raised
+                title="Login with Instagram"
+                onPress={()=> this.refs.instagramLogin.show()}
+                backgroundColor='#E100A2'/>
+            </View>
+            <InstagramLogin
+                ref='instagramLogin'
+                clientId='e9cd736246f04098903acf6d3c3e8809'
+                scopes={['public_content', 'follower_list']}
+                onLoginSuccess={(instaToken) => this.loginSucced(instaToken)}
+                redirectUrl='http://localhost:8515/oauth_callback'
+            />
+
+            <View style={styles.footer}>
+              <View style={styles.textRow}>
+                <RkText rkType='primary3'>Don’t have an account?</RkText>
+                <RkButton rkType='clear'>
+                  <RkText rkType='header6' onPress={() => this.props.navigation.navigate('Signup')}> Sign up now </RkText>
+                </RkButton>
+              </View>
+            </View>
           </View>
-          <InstagramLogin
-              ref='instagramLogin'
-              clientId='e9cd736246f04098903acf6d3c3e8809'
-              scopes={['public_content', 'follower_list']}
-              onLoginSuccess={(instaToken) => this.loginSucced(instaToken)}
-              redirectUrl='http://localhost:8515/oauth_callback'
-          />
-        </View>
+        </RkAvoidKeyboard>
       )
     }
   }
@@ -407,22 +459,50 @@ class MyApp extends Component{
 // <Button onPress={this.listenUserMobile} textStyle={{fontSize: 18}} title = "Load" >
 // </Button>
 
-const styles = StyleSheet.create({
-  container: {
+let styles = RkStyleSheet.create(theme => ({
+  screen: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
+    backgroundColor: theme.colors.screen.base
+  },
+  image: {
+    resizeMode: 'cover',
+    marginBottom: scaleVertical(10),
+  },
+  container: {
+    paddingHorizontal: 17,
+    paddingBottom: scaleVertical(22),
+    alignItems: 'center',
+    flex: -1
+  },
+  footer: {
+    justifyContent: 'flex-end',
+    flex: 1
+  },
+  buttons: {
+    flexDirection: 'row',
+    marginBottom: scaleVertical(24)
+  },
+  button: {
+    marginHorizontal: 14
+  },
+  save: {
+    marginVertical: 9
+  },
+  textRow: {
     justifyContent: 'center',
+    flexDirection: 'row',
+  }
+}));
+
+const LoginStack = StackNavigator({
+  Login: {
+      screen: LoginV
   },
-  red: {
-    color: 'red',
+  Signup: {
+    screen: signup
   },
-  input: {
-      margin: 15,
-      height: 40,
-      width: 300,
-      borderWidth: 1,
-  },
+
 });
 
-export default MyApp;
+export default LoginStack;

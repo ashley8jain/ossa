@@ -28,35 +28,37 @@ export default class App extends Component {
 		var arr = []
 		var foo = []
 
-	  fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
-	  .then((response) => response.json())
-  	.then((response) => {
-      console.log(response);
-      for(var i=0;i<response.data.length;i++){
-        arr.push(response.data[i]);
-      }
-  		this.setState({
-  			image_array : arr
-  		},() => {
-  		          // do something with new state
-              });
-  	})
-  	.then(
-      fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
-  		.then((response)=>response.json())
-  		.then((response)=>{
+    if(this.props.screenProps.instaToken!=null){
+  	  fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
+  	  .then((response) => response.json())
+    	.then((response) => {
         console.log(response);
-  			foo.push(['followers',response.data.counts.followed_by])
-  			foo.push(['following',response.data.counts.follows])
-  			this.setState({
-  				follow_ratio_prop : (response.data.counts.followed_by/response.data.counts.follows),
-  				follow_arr:foo,
-          user_name: response.data.username,
+        for(var i=0;i<response.data.length;i++){
+          arr.push(response.data[i]);
+        }
+    		this.setState({
+    			image_array : arr
+    		},() => {
+    		          // do something with new state
+                });
+    	})
+    	.then(
+        fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
+    		.then((response)=>response.json())
+    		.then((response)=>{
+          console.log(response);
+    			foo.push(['followers',response.data.counts.followed_by])
+    			foo.push(['following',response.data.counts.follows])
+    			this.setState({
+    				follow_ratio_prop : (response.data.counts.followed_by/response.data.counts.follows),
+    				follow_arr:foo,
+            user_name: response.data.username,
 
-  			});
-  		}))
+    			});
+    		}))
+    }
 
-
+    if(this.props.screenProps.fbID!=null){
       const responseFunc = (error, result) => {
         if (error) {
           console.log(error)
@@ -112,6 +114,7 @@ export default class App extends Component {
       );
       // Start the graph request.
       new GraphRequestManager().addRequest(infoRequest).start()
+    }
   }
 
   render() {
