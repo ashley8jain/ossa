@@ -52,6 +52,7 @@ const TabNavv = (props) => {
           fbID: props.fbID,
           logoutFunc: props.logoutFunc,
           loginInWithFB: props.loginInWithFB,
+          loginInWithInstagram: props.loginInWithInstagram,
           email: props.email
         }
       }

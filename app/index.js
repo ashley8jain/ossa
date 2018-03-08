@@ -43,6 +43,7 @@ class LoginV extends Component{
     this.listenUserMobile = this.listenUserMobile.bind(this);
     this.loginFirebase_usingFB = this.loginFirebase_usingFB.bind(this);
     this.loginInWithFB = this.loginInWithFB.bind(this);
+    this.loginSucced = this.loginSucced.bind(this);
   }
 
 
@@ -357,7 +358,8 @@ class LoginV extends Component{
     if(this.state.uid!=null){
       return (
         // Alert.alert(this.state.instaToken),
-        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} email={this.state.email} logoutFunc={this.logout} loginInWithFB={this.loginInWithFB} />
+        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} email={this.state.email} logoutFunc={this.logout}
+          loginInWithFB={this.loginInWithFB} loginInWithInstagram={this.loginSucced} />
       )
     }
     else{

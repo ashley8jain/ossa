@@ -21,7 +21,9 @@ export class SocialSetting extends React.Component {
 
   funcc(selected){
     this.setState({selected});
-    this.props.onPresss();
+    if(this.props.onPresss){
+      this.props.onPresss();
+    }
   }
 
   render() {

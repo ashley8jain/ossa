@@ -13,6 +13,8 @@ import {SocialSetting} from '../components';
 import {FontAwesome} from '../assets/icons';
 import {Avatar} from '../components';
 // import {GradientButton} from '../components';
+import InstagramLogin from 'react-native-instagram-login';
+
 
 
 export default class FifthScreen extends Component {
@@ -46,7 +48,8 @@ export default class FifthScreen extends Component {
       facebook: false
     };
 
-    this.funcc = this.funcc.bind(this);
+    this.fbLogin = this.fbLogin.bind(this);
+    this.instaLogin = this.instaLogin.bind(this);
 
     if(this.props.screenProps.instaToken!=null){
       fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)
@@ -78,12 +81,22 @@ export default class FifthScreen extends Component {
     }
   }
 
-  funcc(){
+  fbLogin(){
     if(this.props.screenProps.fbID!=null){
       this.props.screenProps.logoutFunc();
     }
     else{
       this.props.screenProps.loginInWithFB();
+    }
+  }
+
+  instaLogin(){
+    if(this.props.screenProps.instaToken!=null){
+      this.props.screenProps.logoutFunc();
+    }
+    else{
+      // this.props.screenProps.loginInWithInstagram();
+      this.refs.instagramLogin.show();
     }
   }
 
@@ -193,13 +206,18 @@ export default class FifthScreen extends Component {
                 <SocialSetting name='Google' icon={FontAwesome.google} tintColor={RkTheme.current.colors.google}/>
               </View>
               <View style={styles.row}>
-                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook} selected={this.props.screenProps.fbID!=null}
-                  onPresss={() => this.funcc()}
-                />
+                <SocialSetting name='Facebook' icon={FontAwesome.facebook} tintColor={RkTheme.current.colors.facebook} selected={this.props.screenProps.fbID!=null} onPresss={() => this.fbLogin()} />
               </View>
               <View style={styles.row}>
-                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram} selected={this.props.screenProps.instaToken!=null}/>
+                <SocialSetting name='Instagram' icon={FontAwesome.instagram} tintColor={RkTheme.current.colors.instagram} selected={this.props.screenProps.instaToken!=null} onPresss={() => this.instaLogin()}/>
               </View>
+              <InstagramLogin
+                  ref='instagramLogin'
+                  clientId='e9cd736246f04098903acf6d3c3e8809'
+                  scopes={['public_content', 'follower_list']}
+                  onLoginSuccess={(instaToken) => this.props.screenProps.loginInWithInstagram(instaToken)}
+                  redirectUrl='http://localhost:8515/oauth_callback'
+              />
             </View>
             <Card
               containerStyle={{marginBottom: 10}}
