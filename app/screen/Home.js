@@ -148,37 +148,38 @@ class App extends Component {
           });
         });
     }
-    else if(this.props.screenProps.fbID!=null){
-      const responseFunc = (error, result) => {
-        if (error) {
-          console.log(error)
-          alert('Error fetching data: ' + JSON.stringify(error));
-        } else {
-          console.log(result);
-          this.setState({
-            rawData: result.media.data,
-            dataSource: this.state.dataSource.cloneWithRows(result.media.data),
-            loaded: true,
-            text: this.state.text,
-          });
-        }
-      }
-
-      let urll = '/'+this.props.screenProps.fbID;
-      const infoRequest = new GraphRequest(
-        urll,
-        {
-          parameters: {
-            fields: {
-              string: 'media{media_url,media_type},media_count'
-            }
-          }
-        },
-        responseFunc
-      );
-      // Start the graph request.
-      new GraphRequestManager().addRequest(infoRequest).start()
-    }
+    // GET INSTA MEDIA from FB GRAPH API
+    // else if(this.props.screenProps.fbID!=null){
+    //   const responseFunc = (error, result) => {
+    //     if (error) {
+    //       console.log(error)
+    //       alert('Error fetching data: ' + JSON.stringify(error));
+    //     } else {
+    //       console.log(result);
+    //       this.setState({
+    //         rawData: result.media.data,
+    //         dataSource: this.state.dataSource.cloneWithRows(result.media.data),
+    //         loaded: true,
+    //         text: this.state.text,
+    //       });
+    //     }
+    //   }
+    //
+    //   let urll = '/'+this.props.screenProps.fbID;
+    //   const infoRequest = new GraphRequest(
+    //     urll,
+    //     { accessToken: this.props.screenProps.fbToken,
+    //       parameters: {
+    //         fields: {
+    //           string: 'media{media_url,media_type},media_count'
+    //         }
+    //       }
+    //     },
+    //     responseFunc
+    //   );
+    //   // Start the graph request.
+    //   new GraphRequestManager().addRequest(infoRequest).start()
+    // }
   }
 
 

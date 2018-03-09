@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Text, View, TouchableOpacity, AsyncStorage, Alert, TextInput, Keyboard, Image, Dimensions } from 'react-native'
 import InstagramLogin from 'react-native-instagram-login';
+import Cookie from 'react-native-cookie'
 import firebase from './firebase';
 import {LoginButton,LoginManager,AccessToken, GraphRequestManager, GraphRequest} from 'react-native-fbsdk'
 import { Button,Card,Avatar } from 'react-native-elements'
@@ -44,6 +45,8 @@ class LoginV extends Component{
     this.loginFirebase_usingFB = this.loginFirebase_usingFB.bind(this);
     this.loginInWithFB = this.loginInWithFB.bind(this);
     this.loginSucced = this.loginSucced.bind(this);
+    this.logoutFB = this.logoutFB.bind(this);
+    this.logoutInsta = this.logoutInsta.bind(this);
   }
 
 
@@ -54,8 +57,11 @@ class LoginV extends Component{
     AsyncStorage.getItem('uid').then((value) => {
       this.setState({uid: value});
     }).done();
-    AsyncStorage.getItem('email').then((value) => {
-      this.setState({email: value});
+    // AsyncStorage.getItem('email').then((value) => {
+    //   this.setState({email: value});
+    // }).done();
+    AsyncStorage.getItem('fbToken').then((value) => {
+      this.setState({fbToken: value});
     }).done();
     AsyncStorage.getItem('fbID').then((value) => {
       this.setState({fbID: value});
@@ -75,6 +81,10 @@ class LoginV extends Component{
   loginSucced(instaToken){
     this.setState({ instaToken: instaToken});
     AsyncStorage.setItem("instaToken", instaToken);
+
+    //save INSTA TOKEN into firebase database
+    let userMobilePath = "/user/" + this.state.uid + "/tokens/instaToken";
+    firebase.database().ref(userMobilePath).set({instaToken: instaToken})
   }
 
   async signup() {
@@ -98,13 +108,31 @@ class LoginV extends Component{
     try
     {
       await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
-      alert("Logged In!");
+      // alert("Logged In!");
       let user = await firebase.auth().currentUser;
+      console.log("hereeee: "+user.uid);
       this.setState(
         {uid:user.uid}
       );
       AsyncStorage.setItem("uid", user.uid);
-      AsyncStorage.setItem("email", this.state.email);
+
+      let userMobilePath = "/user/" + user.uid + "/tokens";
+      await firebase.database().ref(userMobilePath).on('value', (snapshot) => {
+        // console.log("hereee2: "+JSON.stringify(snapshot.val()));
+        if (snapshot.val()) {
+          // console.log("hereee3: "+JSON.stringify(snapshot.val()));
+          let fbID = snapshot.val().fbID.fbID;
+          let fbToken = snapshot.val().fbToken.fbToken;
+          let instaToken = snapshot.val().instaToken.instaToken;
+          this.setState({fbID:fbID,fbToken:fbToken,instaToken:instaToken});
+          AsyncStorage.setItem("fbID", fbID);
+          AsyncStorage.setItem("fbToken", fbToken);
+          AsyncStorage.setItem("instaToken", instaToken);
+        }
+      });
+
+
+      // AsyncStorage.setItem("email", this.state.email);
     }
     catch(error)
     {
@@ -112,7 +140,7 @@ class LoginV extends Component{
     }
   }
 
-  async loginFirebase_usingFB(credential){
+  async loginFirebase_usingFB(credential,accessToken){
     await firebase.auth().signInWithCredential(credential).catch(function(error) {
       // Handle Errors here.
       var errorCode = error.code;
@@ -126,26 +154,88 @@ class LoginV extends Component{
     });
 
     let user = await firebase.auth().currentUser;
-    this.setState(
-      {uid:user.uid}
+    await this.setState(
+      {uid:user.uid},
+      function(){
+        //save FB TOKEN into firebase database
+        let userMobilePath = "/user/" + user.uid + "/tokens";
+        firebase.database().ref(userMobilePath+"/fbToken").set({fbToken: accessToken});
+        this.setState({fbToken:accessToken});
+        AsyncStorage.setItem("fbToken", accessToken);
+
+        firebase.database().ref(userMobilePath).on('value', (snapshot) => {
+          // console.log("hereee2: "+JSON.stringify(snapshot.val()));
+          if (snapshot.val()) {
+            // console.log("hereee3: "+JSON.stringify(snapshot.val()));
+            let fbID = snapshot.val().fbID.fbID;
+            let fbToken = snapshot.val().fbToken.fbToken;
+            let instaToken = snapshot.val().instaToken.instaToken;
+            this.setState({instaToken:instaToken});
+            AsyncStorage.setItem("instaToken", instaToken);
+          }
+        });
+
+      }
     );
     console.log("firebase user id: "+user.uid);
     AsyncStorage.setItem("uid", user.uid);
+
   }
 
   logout() {
 
     firebase.auth().signOut();
     LoginManager.logOut();
+    Cookie.clear().then(() => {
+      this.setState({ instaToken: null });
+    });
 
-    this.setState({uid:null,email:null,instaToken:null,fbID:null});
-    let keys = ['uid','email','instaToken','fbID'];
+    this.setState({uid:null,fbID:null,fbToken:null});
+    let keys = ['uid','instaToken','fbID','fbToken'];
     AsyncStorage.multiRemove(keys, (err) => {
     });
 
     alert("logout.");
     // Navigate to login view
 
+  }
+
+  logoutFB() {
+    LoginManager.logOut();
+    this.setState({fbID:null,fbToken:null});
+    AsyncStorage.removeItem("fbID");
+    AsyncStorage.removeItem("fbToken");
+
+    let userMobilePath = "/user/" + this.state.uid;
+    firebase.database().ref(userMobilePath+ "/tokens/fbID").remove().then(function() {
+      console.log("Remove succeeded.")
+    })
+    .catch(function(error) {
+      console.log("Remove failed: " + error.message)
+    });
+
+    firebase.database().ref(userMobilePath+ "/tokens/fbToken").remove().then(function() {
+      console.log("Remove succeeded.")
+    })
+    .catch(function(error) {
+      console.log("Remove failed: " + error.message)
+    });
+
+  }
+
+  logoutInsta() {
+    Cookie.clear().then(() => {
+      this.setState({ instaToken: null });
+    });
+    AsyncStorage.removeItem("instaToken");
+
+    let userMobilePath = "/user/" + this.state.uid + "/tokens/instaToken";
+    firebase.database().ref(userMobilePath).remove().then(function() {
+      console.log("Remove succeeded.")
+    })
+    .catch(function(error) {
+      console.log("Remove failed: " + error.message)
+    });
   }
 
   setUserMobile(){
@@ -173,7 +263,7 @@ class LoginV extends Component{
     });
   }
 
-  loginInWithFB(){
+  loginInWithFB(firebaseUser){
 
     LoginManager.logInWithPublishPermissions(['manage_pages']).then(
 
@@ -192,11 +282,19 @@ class LoginV extends Component{
                     console.log("Data: "+JSON.stringify(data));
                     let accessToken = data.accessToken;
                     console.log("fb token: "+accessToken);
-                    // Build Firebase credential with the Facebook access token.
-                    var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
-                    // alert(credential.toString());
-                    // Sign in with credential from the Google user.
-                    this.loginFirebase_usingFB(credential);
+
+                    if(!firebaseUser){
+                      // Build Firebase credential with the Facebook access token.
+                      var credential = firebase.auth.FacebookAuthProvider.credential(accessToken);
+                      // alert(credential.toString());
+                      // Sign in with credential from the Google user.
+                      this.loginFirebase_usingFB(credential,accessToken);
+                    }
+                    else{
+                      //save FB TOKEN into firebase database
+                      let userMobilePath = "/user/" + this.state.uid + "/tokens/fbToken";
+                      firebase.database().ref(userMobilePath).set({fbToken: accessToken})
+                    }
 
                     // console.log("here1");
                     //FB Graph API :- https://stackoverflow.com/questions/37383888/how-to-use-graph-api-with-react-native-fbsdk
@@ -208,7 +306,7 @@ class LoginV extends Component{
                         console.log("hereeee: "+JSON.stringify(result))
                         this.setState({email:result.email,gender:result.gender});
                         // alert(json.email);
-                        AsyncStorage.setItem("email", result.email);
+                        // AsyncStorage.setItem("email", result.email);
                         // console.log("here2");
 
                         // alert('Success fetching data: ' + JSON.stringify(result));
@@ -216,7 +314,7 @@ class LoginV extends Component{
                     }
                     const infoRequest = new GraphRequest(
                       '/me',
-                      {
+                      { accessToken: accessToken,
                         parameters: {
                           fields: {
                             string: 'email,gender,name'
@@ -266,10 +364,13 @@ class LoginV extends Component{
                                 }
                                 this.setState({fbID:result.id});
                                 AsyncStorage.setItem("fbID", result.id);
+                                //save FB TOKEN into firebase database
+                                let userMobilePath = "/user/" + this.state.uid + "/tokens/fbID";
+                                firebase.database().ref(userMobilePath).set({fbID: result.id})
                                 let urll = '/'+result.id;
                                 const infoRequest = new GraphRequest(
                                   urll,
-                                  {
+                                  { accessToken: accessToken,
                                     parameters: {
                                       fields: {
                                         string: 'media{media_url,media_type},media_count'
@@ -286,7 +387,7 @@ class LoginV extends Component{
                             let urll = '/'+result.instagram_business_account.id;
                             const infoRequest = new GraphRequest(
                               urll,
-                              {
+                              { accessToken: accessToken,
                                 parameters: {
                                   fields: {
                                     string: 'username,name'
@@ -303,7 +404,7 @@ class LoginV extends Component{
                         let urll = '/'+result.data[0].id;
                         const infoRequest = new GraphRequest(
                           urll,
-                          {
+                          { accessToken: accessToken,
                             parameters: {
                               fields: {
                                 string: 'instagram_business_account,name'
@@ -358,8 +459,9 @@ class LoginV extends Component{
     if(this.state.uid!=null){
       return (
         // Alert.alert(this.state.instaToken),
-        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} email={this.state.email} logoutFunc={this.logout}
-          loginInWithFB={this.loginInWithFB} loginInWithInstagram={this.loginSucced} />
+        <TabNav instaToken={this.state.instaToken} fbID={this.state.fbID} fbToken={this.state.fbToken} email={this.state.email} logoutFunc={this.logout}
+          loginInWithFB={this.loginInWithFB} loginInWithInstagram={this.loginSucced} logoutFB={this.logoutFB}
+          logoutInsta={this.logoutInsta} />
       )
     }
     else{
@@ -379,7 +481,7 @@ class LoginV extends Component{
               <RkButton style={styles.button} rkType='social'>
                 <RkText rkType='awesome hero primary'>{FontAwesome.google}</RkText>
               </RkButton>
-              <RkButton style={styles.button} rkType='social' onPress={() => this.loginInWithFB()}>
+              <RkButton style={styles.button} rkType='social' onPress={() => this.loginInWithFB(false)}>
                 <RkText rkType='awesome hero primary'>{FontAwesome.facebook}</RkText>
               </RkButton>
             </View>

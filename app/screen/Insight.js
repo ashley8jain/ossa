@@ -100,7 +100,7 @@ export default class App extends Component {
       let urll = '/'+this.props.screenProps.fbID+'/insights';
       const infoRequest = new GraphRequest(
         urll,
-        {
+        { accessToken: this.props.screenProps.fbToken,
           parameters: {
             metric: {
               string: 'audience_gender_age,audience_country,audience_city'

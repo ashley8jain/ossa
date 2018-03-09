@@ -50,7 +50,10 @@ const TabNavv = (props) => {
         {
           instaToken: props.instaToken,
           fbID: props.fbID,
+          fbToken: props.fbToken,
           logoutFunc: props.logoutFunc,
+          logoutFB: props.logoutFB,
+          logoutInsta: props.logoutInsta,
           loginInWithFB: props.loginInWithFB,
           loginInWithInstagram: props.loginInWithInstagram,
           email: props.email

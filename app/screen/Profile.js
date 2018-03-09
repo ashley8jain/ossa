@@ -83,16 +83,16 @@ export default class FifthScreen extends Component {
 
   fbLogin(){
     if(this.props.screenProps.fbID!=null){
-      this.props.screenProps.logoutFunc();
+      this.props.screenProps.logoutFB();
     }
     else{
-      this.props.screenProps.loginInWithFB();
+      this.props.screenProps.loginInWithFB(true);
     }
   }
 
   instaLogin(){
     if(this.props.screenProps.instaToken!=null){
-      this.props.screenProps.logoutFunc();
+      this.props.screenProps.logoutInsta();
     }
     else{
       // this.props.screenProps.loginInWithInstagram();
