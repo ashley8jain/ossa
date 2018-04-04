@@ -119,14 +119,14 @@ class App extends Component {
 
   handleAppStateChange(appState){
     if (appState === 'background') {
-      console.log(Date.now());
+      // console.log(Date.now());
       let date = new Date(Date.now() + (5 * 1000));
 
       PushNotification.localNotificationSchedule({
         message: "My Notification Message",
         date,
       });
-      console.log('app is in backgound');
+      // console.log('app is in backgound');
     }
   }
 
@@ -138,7 +138,7 @@ class App extends Component {
         fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
         .then((response) => response.json())
         .then((responseData) => {
-          console.log("responseData: "+JSON.stringify(responseData));
+          // console.log("responseData: "+JSON.stringify(responseData));
           this.setState({
             rawData: responseData.data,
             dataSource: this.state.dataSource.cloneWithRows(responseData.data),
@@ -167,7 +167,8 @@ class App extends Component {
           var optimizedTimeValues = [];
           let optimizedTimeLength = arr.length>3 ? 3:arr.length;
           for(var i=0;i<optimizedTimeLength;i++){
-            optimizedTimeValues.push(arr[i].created_time);
+            optimizedTimeValues.push(new Date(arr[i].created_time*1000));
+            // console.log("created_time123: "+optimizedTimeValues[i].getDay());
           }
           this.setState({
             optimizedTimeValues: optimizedTimeValues
@@ -453,26 +454,33 @@ class OpenImage extends Component{
 
     }
 
-    optimizedTimeView(condition){
-      if(condition){
+    optimizedTimeView(){
+
+      var Days = ["Sun","Mon","Tue","Wed","Thurs","Fri","Sat"];
+
+      if(!this.props.navigation.state.params.data.images.filePath){
         return null;
       }
-
+      // console.log("optimizedTime123: "+data.optimizedTime);
       return (
-        <View style = {{height: '8%', backgroundColor: 'white',
-          alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row'}} >
-            <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
-            <Switch style = {{marginRight: 10}} value = {true}
-              onValueChange =
-              {
-                (value) => {
-                  PushNotification.localNotificationSchedule({
-                    message: "It's time to post on Instagram",
-                    date: new Date(Date.now() + (5 * 1000)),
-                  });
-                }
-              }/>
-        </View>
+          this.props.navigation.state.params.data.optimizedTime.map(datee =>
+            ( <View style = {{height: '8%', backgroundColor: 'white',
+              alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row'}} >
+                <Text style = {{padding: 10, fontSize: 20}} >{Days[datee.getDay()]+" - "+datee.getHours()+":"+datee.getMinutes()}</Text>
+                <Switch style = {{marginRight: 10}} value = {false}
+                  onValueChange =
+                  {
+                    (value) => {
+                      PushNotification.localNotificationSchedule({
+                        message: "It's time to post on Instagram",
+                        date: new Date(Date.now() + (5 * 1000)),
+                      });
+                    }
+                  }/>
+              </View>
+           )
+         )
+
       );
     }
 
@@ -548,7 +556,7 @@ class OpenImage extends Component{
             />
           </View>
           <View style = {{height: '5%', backgroundColor: '#F9F9F9', }} />
-          {this.optimizedTimeView(!this.props.navigation.state.params.data.images.filePath)}
+          {this.optimizedTimeView()}
 
         </View>
       )
