@@ -23,12 +23,17 @@ class SignUp extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      email: '',
+      password: ''
+    };
   }
 
   render() {
     let renderIcon = () => {
       return <Image style={styles.image} source={require('./assets/images/logo.png')}/>;
     };
+    // console.log("props nav: "+JSON.stringify(this.props.navigation));
     return (
       <RkAvoidKeyboard
         style={styles.screen}
@@ -41,12 +46,19 @@ class SignUp extends React.Component {
         <View style={styles.content}>
           <View>
             <RkTextInput rkType='rounded' placeholder='Name'/>
-            <RkTextInput rkType='rounded' placeholder='Email'/>
-            <RkTextInput rkType='rounded' placeholder='Password' secureTextEntry={true}/>
+            <RkTextInput rkType='rounded' placeholder='Email' value={this.state.email}
+            onChangeText={(text) => this.setState({email: text})}/>
+            <RkTextInput rkType='rounded' placeholder='Password' secureTextEntry={true} value={this.state.password}
+            onChangeText={(text) => this.setState({password: text})}/>
             <RkTextInput rkType='rounded' placeholder='Confirm Password' secureTextEntry={true}/>
             <Button
               raised
-              onPress={() => console.log("signup")}
+              onPress={async () =>
+                { 
+                  await this.props.navigation.state.params.signupp(this.state.email,this.state.password);
+                  this.props.navigation.goBack();
+                }
+              }
               title="SIGN UP"
               backgroundColor= {RkTheme.current.colors.primary}/>
           </View>

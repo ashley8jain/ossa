@@ -38,9 +38,7 @@ export default class App extends Component {
         }
     		this.setState({
     			image_array : arr
-    		},() => {
-    		          // do something with new state
-                });
+    		});
     	})
     	.then(
         fetch('https://api.instagram.com/v1/users/self/?access_token='+this.props.screenProps.instaToken)

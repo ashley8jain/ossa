@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, Text, Image, View, StyleSheet, ScrollView, ToastAndroid
+import { Platform, Text, Image, View, StyleSheet, ScrollView
          ,TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback,
         ListView, TextInput, NativeModules, Dimensions, Alert, Switch, AppState, Clipboard } from 'react-native';
 import { StackNavigator } from 'react-navigation';
@@ -74,9 +74,6 @@ const storage = firebase.storage()
 
 
 
-
-
-
 class App extends Component {
 
   static navigationOptions = {
@@ -97,6 +94,7 @@ class App extends Component {
       isTapped:false,
       rawData: [],
       dialogVisible: false,
+      optimizedTimeValues: []
     };
     this.pressView = this.pressView.bind(this);
     this.pickCamera = this.pickCamera.bind(this);
@@ -134,18 +132,49 @@ class App extends Component {
 
   //loads media from endpoint API
   fetchData() {
+    var arr = []
     if(this.props.screenProps.instaToken!=null){
 
         fetch('https://api.instagram.com/v1/users/self/media/recent/?access_token='+this.props.screenProps.instaToken)
         .then((response) => response.json())
         .then((responseData) => {
-          console.log(responseData);
+          console.log("responseData: "+JSON.stringify(responseData));
           this.setState({
             rawData: responseData.data,
             dataSource: this.state.dataSource.cloneWithRows(responseData.data),
             loaded: true,
             text: this.state.text,
           });
+
+          for(var i=0;i<responseData.data.length;i++){
+            arr.push(responseData.data[i]);
+          }
+
+          arr.sort(
+            function(a,b){
+              if(a.likes.count<b.likes.count){
+                return 1;
+              }
+              else if(a.likes.count==b.likes.count){
+                return 0;
+              }
+              else{
+                return -1;
+              }
+            }
+          );
+
+          var optimizedTimeValues = [];
+          let optimizedTimeLength = arr.length>3 ? 3:arr.length;
+          for(var i=0;i<optimizedTimeLength;i++){
+            optimizedTimeValues.push(arr[i].created_time);
+          }
+          this.setState({
+            optimizedTimeValues: optimizedTimeValues
+          });
+
+          // console.log("here123: "+optimizedTimeValues);
+
         });
     }
     // GET INSTA MEDIA from FB GRAPH API
@@ -223,9 +252,7 @@ class App extends Component {
   }
 
 
-
   pressView(data){
-    // ToastAndroid.show(item.name, ToastAndroid.SHORT);
     this.props.navigation.navigate('ImageSelected',{data});
   }
 
@@ -309,6 +336,7 @@ class App extends Component {
                 'url': image.path
               }
             },
+            'optimizedTime':this.state.optimizedTimeValues,
             'uploaded':true,
 
           }
@@ -374,7 +402,7 @@ class OpenImage extends Component{
         tags: [],
         text: "#intelmark",
         text2: "",
-        height: 0
+        height: 0,
       };
       this.addHash = this.addHash.bind(this);
     }
@@ -423,6 +451,29 @@ class OpenImage extends Component{
            }
          );
 
+    }
+
+    optimizedTimeView(condition){
+      if(condition){
+        return null;
+      }
+
+      return (
+        <View style = {{height: '8%', backgroundColor: 'white',
+          alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row'}} >
+            <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
+            <Switch style = {{marginRight: 10}} value = {true}
+              onValueChange =
+              {
+                (value) => {
+                  PushNotification.localNotificationSchedule({
+                    message: "It's time to post on Instagram",
+                    date: new Date(Date.now() + (5 * 1000)),
+                  });
+                }
+              }/>
+        </View>
+      );
     }
 
     render(){
@@ -497,12 +548,8 @@ class OpenImage extends Component{
             />
           </View>
           <View style = {{height: '5%', backgroundColor: '#F9F9F9', }} />
+          {this.optimizedTimeView(!this.props.navigation.state.params.data.images.filePath)}
 
-          <View style = {{height: '8%', backgroundColor: 'white',
-            alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row'}} >
-              <Text style = {{padding: 10, fontSize: 20}} >8 Dec 2017 / 9:00 pm</Text>
-              <Switch style = {{marginRight: 10}} value = {true} />
-          </View>
         </View>
       )
     }
@@ -637,7 +684,7 @@ const HashTags = TabNavigator({
 });
 
 const ModalStack = StackNavigator({
-  Login: {
+  Home: {
       screen: App
   },
   ImageSelected: {

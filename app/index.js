@@ -17,7 +17,7 @@ import {FontAwesome} from './assets/icons';
 // import {GradientButton} from './components/gradientButton';
 import {scale, scaleModerate, scaleVertical} from './utils/scale';
 
-import signup from './signup'
+import signup_screen from './signup'
 import { StackNavigator } from 'react-navigation';
 import TabNav from './tabNav'
 
@@ -87,11 +87,11 @@ class LoginV extends Component{
     firebase.database().ref(userMobilePath).set({instaToken: instaToken})
   }
 
-  async signup() {
+  async signup(email = this.state.email, password = this.state.password) {
     // DismissKeyboard();
     try
-    {
-      await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
+    { await this.setState({email: email,password: password});
+      await firebase.auth().createUserWithEmailAndPassword(email, password);
       this.login();
       //go to home page
 
@@ -110,7 +110,7 @@ class LoginV extends Component{
       await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
       // alert("Logged In!");
       let user = await firebase.auth().currentUser;
-      console.log("hereeee: "+user.uid);
+      // console.log("hereeee: "+user.uid);
       this.setState(
         {uid:user.uid}
       );
@@ -190,7 +190,7 @@ class LoginV extends Component{
       this.setState({ instaToken: null });
     });
 
-    this.setState({uid:null,fbID:null,fbToken:null});
+    this.setState({uid:null,fbID:null,fbToken:null,email: null,password: null});
     let keys = ['uid','instaToken','fbID','fbToken'];
     AsyncStorage.multiRemove(keys, (err) => {
     });
@@ -500,27 +500,11 @@ class LoginV extends Component{
               title="LOGIN"
               backgroundColor= {RkTheme.current.colors.primary}/>
 
-
-            <View style={{margin: 10}}>
-              <Button
-                raised
-                title="Login with Instagram"
-                onPress={()=> this.refs.instagramLogin.show()}
-                backgroundColor='#E100A2'/>
-            </View>
-            <InstagramLogin
-                ref='instagramLogin'
-                clientId='e9cd736246f04098903acf6d3c3e8809'
-                scopes={['public_content', 'follower_list']}
-                onLoginSuccess={(instaToken) => this.loginSucced(instaToken)}
-                redirectUrl='http://localhost:8515/oauth_callback'
-            />
-
             <View style={styles.footer}>
               <View style={styles.textRow}>
                 <RkText rkType='primary3'>Don’t have an account?</RkText>
                 <RkButton rkType='clear'>
-                  <RkText rkType='header6' onPress={() => this.props.navigation.navigate('Signup')}> Sign up now </RkText>
+                  <RkText rkType='header6' onPress={() => this.props.navigation.navigate('Signup',{signupp:this.signup.bind(this)})}> Sign up now </RkText>
                 </RkButton>
               </View>
             </View>
@@ -604,7 +588,7 @@ const LoginStack = StackNavigator({
       screen: LoginV
   },
   Signup: {
-    screen: signup
+    screen: signup_screen
   },
 
 });

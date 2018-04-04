@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'
 export default class ThirdScreen extends Component {
   static navigationOptions = {
     tabBarLabel: "Third",
-    tabBarIcon: () => <Icon size={24} color="white" name="add-circle" />
+    tabBarIcon: () => <Icon size={24} color="white" name="add-circle" onPress={() => console.log(JSON.stringify(this.props))} />
   }
 
   render() {
