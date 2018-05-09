@@ -1,0 +1,68 @@
+// csv file path
+
+/Users/ashleyjain/Library/Application Support/Neo4j Desktop/Application/neo4jDatabases/database-10efed5e-892f-4c4a-aa72-c0ef27035a0e/installation-3.3.1/import
+
+
+
+// load the node csv file
+
+LOAD CSV WITH HEADERS FROM "file:///users.csv" AS row
+CREATE (n:User)
+SET n = row,
+	n.user_id = toInteger(row.user_id),
+  n.user_name = row.user_name
+
+
+
+// return all nodes
+
+START n=node(*) RETURN n;
+
+
+MATCH (u:User)
+RETURN u;
+
+
+
+// load the relationship csv file
+
+LOAD CSV WITH HEADERS FROM "file:///follow.csv" AS row
+	MATCH (u1:User {user_id:toInteger(row.follower_id)})
+	MATCH (u2:User {user_id:toInteger(row.following_id)})
+	CREATE (u1)-[:Follow {weight:1}]-> (u2);
+
+
+
+// displays the nodes and the relationships
+
+START n=node(*) MATCH (n)-[r]->(m) RETURN n,r,m;
+
+
+
+//find following users for specific user
+
+MATCH (u:User {user_name:"Ashley Jain"})-[:Follow]->(following)
+RETURN u,following
+
+
+// find the users who follow me but i don't follow them
+
+MATCH (u:User {user_name:"Ashley Jain"})<-[:Follow]-(follower)
+WHERE NOT (u)-[:Follow]->(follower)
+RETURN follower
+
+
+
+// recommend new friends for specific user
+
+MATCH (u:User {user_name:"Ashley Jain"})-[:Follow]->(a)-[:Follow]->(recommend)
+WHERE NOT (u)-[:Follow]->(recommend) AND u <> recommend
+RETURN recommend.user_id AS user_id,recommend.user_name AS user_name, count(*) AS num_mutual_friend
+ORDER BY num_mutual_friend DESC
+
+
+
+
+// delete all nodes
+MATCH (n)
+DETACH DELETE n;

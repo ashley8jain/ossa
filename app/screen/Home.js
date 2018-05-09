@@ -168,14 +168,12 @@ class App extends Component {
           let optimizedTimeLength = arr.length>3 ? 3:arr.length;
           for(var i=0;i<optimizedTimeLength;i++){
             optimizedTimeValues.push(new Date(arr[i].created_time*1000));
-            // console.log("created_time123: "+optimizedTimeValues[i].getDay());
+            // console.log("created_time123: "+parseInt(optimizedTimeValues[i].getTime()/1000000)*1000000);
           }
           this.setState({
             optimizedTimeValues: optimizedTimeValues
           });
-
           // console.log("here123: "+optimizedTimeValues);
-
         });
     }
     // GET INSTA MEDIA from FB GRAPH API
@@ -473,14 +471,13 @@ class OpenImage extends Component{
                     (value) => {
                       PushNotification.localNotificationSchedule({
                         message: "It's time to post on Instagram",
-                        date: new Date(Date.now() + (5 * 1000)),
+                        date: new Date(parseInt(datee.getTime()/1000000)*1000000)
                       });
                     }
                   }/>
               </View>
            )
          )
-
       );
     }
 
