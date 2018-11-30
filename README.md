@@ -5,6 +5,7 @@
 A Mobile Application to be implemented on both platforms(ios+Android) targeted at social-influencers.
 
 > Project Report
+
 [Report.pdf](Minor_project_report.pdf)
 
 > Features and Actions(General & special)
